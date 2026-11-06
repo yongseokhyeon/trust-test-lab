@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRUST&amp;TEST LAB — AI 신뢰성 & QA 실습 교육 플랫폼</title>
+  <meta name="description" content="이론 학습, 실습, 결과 분석, 포트폴리오를 하나로 잇는 AI 신뢰성·소프트웨어 테스트 실습 교육 플랫폼">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="home">
+  <header id="site-header"></header>
+
+  <main>
+    <!-- 재방문자: 내 학습 현황 -->
+    <section id="dash-section" class="section-alt hidden" style="padding:36px 0">
+      <div class="container">
+        <div class="dashboard">
+          <div class="dash-top">
+            <div>
+              <h2 style="font-size:1.35rem;margin-bottom:2px">다시 오신 것을 환영해요 👋</h2>
+              <p class="muted" style="margin:0">지금까지의 학습 현황이에요.</p>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="mypage.html">마이페이지에서 자세히 보기 →</a>
+          </div>
+          <div class="grid grid-4" id="dash-stats"></div>
+          <div id="dash-continue"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">대학생 · 입문자를 위한 실습형 교육 플랫폼</span>
+          <h1>배우고, 테스트하고,<br><em>포트폴리오로 증명하세요.</em></h1>
+          <p class="lead">TRUST&amp;TEST LAB에서는 AI 신뢰성 전문가와 QA 엔지니어의 실제 업무를 미리 경험합니다.
+            AI의 잘못된 답변을 직접 가려내고, 가상의 소프트웨어에서 버그를 찾아 리포트를 작성하세요.
+            작성한 모든 결과물은 나만의 포트폴리오로 쌓입니다.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary btn-lg" href="#start">무엇부터 시작할지 고르기</a>
+            <a class="btn btn-outline btn-lg" href="lab.html">실습 LAB 둘러보기</a>
+          </div>
+        </div>
+        <div class="card" aria-label="실습 미리보기">
+          <div class="tags"><span class="tag ai">AI 검증 미션 미리보기</span></div>
+          <div class="bubble user" style="font-size:.9rem">계절학기는 몇 학점까지 들을 수 있어요?</div>
+          <div class="bubble bot" style="font-size:.9rem">최대 9학점까지 가능하며, 2025년 신설된 'AI 특별학기'에서 3학점을 추가로 들을 수 있습니다.</div>
+          <div class="label-pick" style="margin-bottom:0">
+            <button disabled>✅ 문제 없음</button>
+            <button disabled>❌ 사실 오류</button>
+            <button class="on" disabled>🌀 환각</button>
+            <button disabled>⚖️ 편향</button>
+          </div>
+          <p class="small" style="margin:12px 0 0;color:var(--text-2)">💡 학사 규정에는 계절학기 최대 <b>6학점</b>이고, 'AI 특별학기'는 존재하지 않아요. 근거 없는 제도를 지어낸 <b>환각</b>입니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 학습 흐름 -->
+    <section class="section-alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>이론에서 포트폴리오까지, 하나로 이어지는 학습</h2>
+          <p>모든 학습은 다섯 단계로 연결됩니다. 배운 것은 바로 써 보고, 써 본 것은 결과물로 남깁니다.</p>
+        </div>
+        <div class="flow">
+          <div class="flow-step"><div class="num">1</div><div><b>이론 학습</b><span>학습실에서 개념과 실무 사례 익히기</span></div></div>
+          <div class="flow-step"><div class="num">2</div><div><b>직접 테스트</b><span>실습 LAB에서 AI 답변·가상 앱 테스트</span></div></div>
+          <div class="flow-step"><div class="num">3</div><div><b>문제 분석</b><span>자동 채점과 놓친 부분 피드백</span></div></div>
+          <div class="flow-step"><div class="num">4</div><div><b>결과물 작성</b><span>버그 리포트 · AI 평가 리포트</span></div></div>
+          <div class="flow-step"><div class="num">5</div><div><b>포트폴리오</b><span>마이페이지에 모아 취업 준비</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 관심 직무 선택 -->
+    <section id="start">
+      <div class="container">
+        <div class="section-head">
+          <h2>어떤 직무가 궁금하세요?</h2>
+          <p>관심 분야를 고르면 첫 학습을 추천해 드려요.</p>
+        </div>
+        <div class="choice-grid" id="choices">
+          <button class="choice" data-v="ai"><span style="font-size:1.6rem">🤖</span><b>AI 신뢰성 전문가</b><span>"이 AI 답변을 믿어도 될까?"를 검증하는 사람</span></button>
+          <button class="choice" data-v="sw"><span style="font-size:1.6rem">🧪</span><b>QA / SW 테스트 엔지니어</b><span>"이 소프트웨어를 출시해도 될까?"를 판단하는 사람</span></button>
+          <button class="choice" data-v="both"><span style="font-size:1.6rem">🧭</span><b>둘 다 궁금해요</b><span>두 직무를 모두 체험하고 비교해 보고 싶어요</span></button>
+        </div>
+        <div id="recommend"></div>
+      </div>
+    </section>
+
+    <!-- 두 직무 -->
+    <section class="section-alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>두 개의 학습실, 두 개의 직무</h2>
+          <p>각 학습실은 실제 직무에서 쓰는 지식과 기술을 6개 모듈로 나누어 다룹니다.</p>
+        </div>
+        <div class="grid grid-2" id="track-cards"></div>
+      </div>
+    </section>
+
+    <!-- 실습 LAB -->
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <h2>실무와 똑같이, 실습 LAB 미션</h2>
+          <p>업무 지시를 받고, 테스트하고, 결과물을 제출하세요. 제출하면 바로 채점과 피드백을 받습니다.</p>
+        </div>
+        <div class="grid grid-3" id="open-missions"></div>
+        <p style="text-align:center;margin:28px 0 0"><a class="btn btn-ghost" href="lab.html">전체 미션 보기 →</a></p>
+      </div>
+    </section>
+
+    <section style="padding-top:0">
+      <div class="container">
+        <div class="cta">
+          <h2>첫 번째 결과물을 만들어 보세요</h2>
+          <p>회원가입 없이 바로 시작할 수 있어요. 학습 기록은 이 브라우저에 안전하게 저장됩니다.</p>
+          <a class="btn btn-lg" href="lab.html">실습 LAB 시작하기</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    /* ---------- 재방문 대시보드 ---------- */
+    if (Progress.hasActivity()) {
+      const s = Store.load();
+      const ai = Progress.track("ai"), sw = Progress.track("sw");
+      const missionsDone = Object.keys(s.missions).length;
+      $("#dash-section").classList.remove("hidden");
+      $("#dash-stats").innerHTML = `
+        <div class="stat-tile"><div class="label">🤖 AI 신뢰성 학습실</div><div class="value">${ai.pct}<small>%</small></div><div class="progress ai"><i style="width:${ai.pct}%"></i></div></div>
+        <div class="stat-tile"><div class="label">🧪 SW 테스트 학습실</div><div class="value">${sw.pct}<small>%</small></div><div class="progress sw"><i style="width:${sw.pct}%"></i></div></div>
+        <div class="stat-tile"><div class="label">🔬 완료한 미션</div><div class="value">${missionsDone}<small> / ${MISSIONS.length}</small></div><div class="small muted">실습 LAB</div></div>
+        <div class="stat-tile"><div class="label">📁 포트폴리오 결과물</div><div class="value">${s.portfolio.length}<small>건</small></div><div class="small muted"><a href="mypage.html#portfolio">결과물 보기</a></div></div>`;
+
+      const next = nextStep();
+      $("#dash-continue").innerHTML = `
+        <div class="continue-card">
+          <div>
+            <div class="small" style="color:var(--primary);font-weight:800">${s.last ? "이어서 학습하기" : "다음 추천 학습"}</div>
+            <b>${esc(s.last ? s.last.title : next.title)}</b>
+            ${s.last && next ? `<div class="small muted">다음 추천: ${esc(next.title)}</div>` : ""}
+          </div>
+          <div class="btn-row">
+            ${s.last ? `<a class="btn btn-primary" href="${s.last.href}">이어서 하기</a>` : ""}
+            ${next && (!s.last || next.href !== s.last.href) ? `<a class="btn btn-outline" href="${next.href}">${s.last ? "추천 학습 시작" : "시작하기"}</a>` : ""}
+          </div>
+        </div>`;
+    }
+
+    function nextStep() {
+      const order = [], seen = new Set();
+      const interest = Store.load().interest;
+      const tracks = interest === "sw" ? ["sw", "ai"] : ["ai", "sw"];
+      tracks.forEach(t => MODULES.filter(m => m.track === t).forEach(m => {
+        order.push({ title: `${TRACKS[m.track].room} · ${m.title}`, href: m.href, done: !!Progress.module(m.id).done });
+        const mi = MISSIONS.find(x => x.id === m.mission);
+        if (mi && mi.href && !seen.has(mi.id)) {
+          seen.add(mi.id);
+          order.push({ title: `실습 LAB · ${mi.title}`, href: mi.href, done: !!Progress.mission(mi.id) });
+        }
+      }));
+      return order.find(o => !o.done) || { title: "마이페이지에서 포트폴리오 정리하기", href: "mypage.html#portfolio" };
+    }
+
+    /* ---------- 관심 직무 선택 ---------- */
+    const REC = {
+      ai: { title: "AI 신뢰성 개론", sub: "AI 신뢰성 학습실 · 모듈 1", href: "module.html?id=ai-1",
+            then: "모듈 1~3을 마친 뒤 실습 LAB의 「학사 도우미 챗봇 출시 전 검수」 미션에 도전하세요." },
+      sw: { title: "소프트웨어 테스트 기초", sub: "SW 테스트 학습실 · 모듈 1", href: "module.html?id=sw-1",
+            then: "모듈 3·5를 마친 뒤 실습 LAB의 「회원가입 기능 배포 전 테스트」 미션에 도전하세요." },
+      both: { title: "AI 신뢰성 개론 → 소프트웨어 테스트 기초", sub: "두 학습실의 모듈 1부터 차례로", href: "module.html?id=ai-1",
+              then: "두 직무가 '기준과 실제를 비교한다'는 같은 뿌리를 가졌다는 걸 느낄 수 있어요." },
+    };
+    function showRec(v) {
+      $$("#choices .choice").forEach(c => c.classList.toggle("selected", c.dataset.v === v));
+      const r = REC[v];
+      $("#recommend").innerHTML = `
+        <div class="recommend">
+          <div>
+            <div class="small" style="color:var(--primary);font-weight:800">추천 첫 학습 · ${r.sub}</div>
+            <b style="font-size:1.08rem">${r.title}</b>
+            <div class="small muted">${r.then}</div>
+          </div>
+          <a class="btn btn-primary" href="${r.href}">지금 시작하기 →</a>
+        </div>`;
+    }
+    $("#choices").addEventListener("click", e => {
+      const c = e.target.closest(".choice");
+      if (!c) return;
+      Store.update(s => { s.interest = c.dataset.v; });
+      showRec(c.dataset.v);
+    });
+    if (Store.load().interest) showRec(Store.load().interest);
+
+    /* ---------- 트랙 카드 ---------- */
+    $("#track-cards").innerHTML = ["ai", "sw"].map(k => {
+      const t = TRACKS[k];
+      const mods = MODULES.filter(m => m.track === k);
+      return `
+        <div class="card">
+          <div class="icon-box ${k}">${t.icon}</div>
+          <div class="tags"><span class="tag ${k}">${t.room}</span></div>
+          <h3>${t.role}</h3>
+          <p>${t.desc}</p>
+          <ol class="small" style="color:var(--text-2);margin:0 0 4px">${mods.map(m => `<li>${m.title}</li>`).join("")}</ol>
+          <div class="card-foot"><a href="resources.html#jobs">직무 가이드 읽기</a><a class="btn btn-sm btn-primary" href="${t.page}">학습실 가기 →</a></div>
+        </div>`;
+    }).join("");
+
+    $("#open-missions").innerHTML = MISSIONS.filter(m => m.href).map(missionCard).join("");
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 환각 현상 분석 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="ai">
+  <header id="site-header"></header>
+
+  <div class="page-head ai">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › <a href="ai-lab.html">AI 신뢰성 학습실</a> › 모듈 3</div>
+      <div class="tags"><span class="tag ai">AI 신뢰성</span><span class="tag">모듈 3</span><span class="tag">⏱ 약 25분</span></div>
+      <h1>AI 환각(Hallucination) 현상 분석</h1>
+      <p>AI는 모르는 것도 자신 있게 말합니다. 그럴듯한 거짓을 만드는 이유를 이해하고, 근거 문서와 대조해 환각을 찾아내는 방법을 배워 봅시다.</p>
+    </div>
+  </div>
+
+  <main class="container module-layout">
+    <nav class="toc" aria-label="목차">
+      <h4>학습 순서</h4>
+      <ol>
+        <li><a href="#what"><span class="stage">STEP 1 · 개념</span>환각이란?</a></li>
+        <li><a href="#why">왜 생길까?</a></li>
+        <li><a href="#types">환각의 4가지 유형</a></li>
+        <li><a href="#how">환각을 찾는 4단계</a></li>
+        <li><a href="#practice"><span class="stage">STEP 2 · 실습</span>근거 문서와 대조하기</a></li>
+        <li><a href="#quiz"><span class="stage">STEP 3 · 퀴즈</span>확인 퀴즈</a></li>
+        <li><a href="#next"><span class="stage">STEP 4 · 다음</span>연계 미션</a></li>
+      </ol>
+    </nav>
+
+    <article class="content">
+      <span class="stage-label">STEP 1 · 개념 학습</span>
+      <h2 id="what">1. 환각이란?</h2>
+      <p><span class="term">환각</span>(Hallucination)은 AI가 <b>사실이 아니거나 근거가 없는 내용을 그럴듯하게 만들어 내는 현상</b>입니다.
+        문제는 환각이 틀린 티를 내지 않는다는 점이에요. 문장은 자연스럽고, 숫자는 구체적이고, 때로는 출처까지 붙어 있습니다.</p>
+      <div class="callout">
+        <b>💼 실무에서는</b>
+        AI 신뢰성 전문가는 챗봇이나 AI 서비스가 출시되기 전에 수백~수천 개의 질문을 던지고,
+        답변을 <span class="term">근거 문서</span>와 대조해 <b>환각이 얼마나 자주, 얼마나 심각하게</b> 발생하는지 측정합니다.
+        이 결과가 "출시해도 되는가?"를 결정하는 핵심 근거가 됩니다.
+      </div>
+
+      <h2 id="why">2. 왜 생길까?</h2>
+      <p>생성형 AI(대규모 언어 모델)는 데이터베이스에서 정답을 찾아오는 것이 아니라, <b>앞의 문맥 다음에 올 가능성이 높은 단어를 이어 붙여</b> 문장을 만듭니다.</p>
+      <ul>
+        <li><b>확률적 생성:</b> "그럴듯함"을 기준으로 단어를 고르기 때문에, 그럴듯하지만 틀린 문장이 나올 수 있어요.</li>
+        <li><b>지식의 빈틈:</b> 학습 데이터에 없거나 오래된 정보는 비슷한 패턴으로 메워 버립니다.</li>
+        <li><b>"모른다"고 잘 말하지 않음:</b> 답을 만들어 내도록 학습되어, 모르는 질문에도 답을 지어낼 수 있어요.</li>
+      </ul>
+
+      <h2 id="types">3. 환각의 4가지 유형</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>유형</th><th>설명</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td><b>사실 충돌</b></td><td>근거 자료와 <b>다른</b> 내용을 말함</td><td>정정 기간이 1주인데 "2주"라고 답함</td></tr>
+            <tr><td><b>근거 날조</b></td><td>존재하지 않는 출처·제도·수치를 <b>지어냄</b></td><td>없는 법 조항, 가짜 논문, 없는 서비스</td></tr>
+            <tr><td><b>맥락 이탈</b></td><td>질문이나 지시와 무관한 내용을 답함</td><td>"요약해 줘"에 새로운 주장을 덧붙임</td></tr>
+            <tr><td><b>자기 모순</b></td><td>같은 답변 안에서 앞뒤가 맞지 않음</td><td>"무료입니다. … 이용료는 5천 원입니다."</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">
+        <b>⚠️ 특히 위험한 것: 근거 날조</b>
+        <span class="term">출처 날조</span>는 "출처가 있으니 맞겠지"라는 착각을 불러일으켜 사용자가 검증 없이 믿게 만듭니다.
+        출처가 붙어 있을수록 <b>그 출처가 실제로 존재하는지</b>부터 확인하세요.
+      </div>
+
+      <h2 id="how">4. 환각을 찾는 4단계</h2>
+      <ol>
+        <li><b>주장 단위로 쪼개기:</b> 답변을 "확인할 수 있는 주장" 하나씩으로 나눕니다.</li>
+        <li><b>근거 문서와 대조:</b> 각 주장을 공식 규정, 원문 자료 등 믿을 수 있는 근거와 비교합니다.</li>
+        <li><b>판정하기:</b> 각 주장을 <span class="tag ok">근거 있음</span> <span class="tag warn">근거와 충돌</span> <span class="tag bad">근거 없음(날조)</span>으로 분류합니다.</li>
+        <li><b>영향 평가와 기록:</b> 사용자가 그 정보를 믿었을 때 생길 피해를 기준으로 심각도를 정하고 기록합니다.</li>
+      </ol>
+
+      <!-- 실습 -->
+      <span class="stage-label" style="margin-top:2.4em">STEP 2 · 미니 실습</span>
+      <h2 id="practice" style="margin-top:.2em">5. 실습: 근거 문서와 대조해 환각 찾기</h2>
+      <div class="practice">
+        <div class="practice-head"><h3>✋ 도서관 안내 챗봇 답변 검증</h3><span class="tag ai">7문장</span></div>
+        <div class="instruction">
+          학생이 <b>"도서관 대출 규정 알려줘"</b>라고 물었고, 챗봇이 아래와 같이 답했습니다.
+          <b>근거 문서</b>와 대조해 각 문장을 판정한 뒤 <b>채점하기</b>를 누르세요.
+        </div>
+        <div class="ref-doc" style="margin-bottom:16px">
+          <h3>📄 근거 문서: 트러스트대학교 도서관 이용 안내</h3>
+          <ul style="margin:0;font-size:.9rem;color:var(--text-2)">
+            <li>운영 시간: 평일 09:00~22:00, 토요일 10:00~17:00, <b>일요일·공휴일 휴관</b></li>
+            <li>대출: 학부생 최대 10권, 14일</li>
+            <li>연장: <b>1회</b>, 7일 연장 (연체 중에는 연장 불가)</li>
+            <li>연체: <b>연체료 없음</b>, 연체 일수만큼 대출 정지</li>
+            <li>스터디룸: 2~6인, 하루 최대 2시간, 도서관 홈페이지에서 예약</li>
+          </ul>
+        </div>
+        <div id="sentences"></div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-primary" id="check-sent">채점하기</button>
+          <button class="btn btn-ghost" id="reset-sent">다시 하기</button>
+        </div>
+        <div class="feedback" id="sent-fb"></div>
+      </div>
+
+      <!-- 퀴즈 -->
+      <span class="stage-label" style="margin-top:2.4em">STEP 3 · 확인 퀴즈</span>
+      <h2 id="quiz" style="margin-top:.2em">6. 확인 퀴즈</h2>
+      <div class="practice" id="quiz-box"></div>
+
+      <div class="complete-box">
+        <div><b>이 모듈을 다 학습하셨나요?</b><div class="small muted">완료 표시를 하면 학습실 진도에 반영됩니다.</div></div>
+        <button class="btn btn-primary" id="done-btn">학습 완료로 표시</button>
+      </div>
+
+      <span class="stage-label" style="margin-top:2.4em">STEP 4 · 다음 단계</span>
+      <h2 id="next" style="margin-top:.2em">7. 배운 것을 실무처럼 써 보기</h2>
+      <div class="next-card">
+        <div>
+          <div class="small" style="font-weight:800;opacity:.85">🔬 실습 LAB 연계 미션</div>
+          <h3>학사 도우미 챗봇 출시 전 검수</h3>
+          <p>환각뿐 아니라 편향, 안전성, 개인정보 문제까지 찾아 AI 답변 평가 리포트를 작성합니다.</p>
+        </div>
+        <a class="btn btn-lg" href="mission-chatbot.html">미션 시작 →</a>
+      </div>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const MODULE_ID = "ai-3";
+    Progress.setLast("module-hallucination.html", "AI 신뢰성 학습실 · AI 환각 현상 분석");
+
+    /* ---------- 미니 실습 ---------- */
+    const LABELS = { ok: "근거 있음", conflict: "근거와 충돌", fabricated: "근거 없음(날조)" };
+    const SENTENCES = [
+      { t: "학부생은 최대 10권까지 14일 동안 대출할 수 있습니다.", a: "ok",
+        ex: "근거 문서의 '학부생 최대 10권, 14일'과 일치합니다." },
+      { t: "대출 기간은 2회까지 연장할 수 있으며, 연장할 때마다 7일이 추가됩니다.", a: "conflict",
+        ex: "근거 문서에는 연장이 '1회'로 되어 있습니다. 실제 규정과 다른 숫자를 말한 사실 충돌입니다." },
+      { t: "반납이 늦으면 하루 100원의 연체료가 부과됩니다.", a: "conflict",
+        ex: "근거 문서에는 '연체료 없음, 대출 정지'로 되어 있습니다. 규정과 정면으로 충돌합니다." },
+      { t: "도서관은 일요일에도 10시부터 17시까지 운영합니다.", a: "conflict",
+        ex: "일요일은 휴관입니다. 토요일 운영 시간을 일요일에 잘못 적용한 사실 충돌입니다." },
+      { t: "「트러스트대학교 도서관 운영규정」 제12조에 따라 졸업 예정자는 최대 20권까지 대출할 수 있습니다.", a: "fabricated",
+        ex: "근거 문서 어디에도 졸업 예정자 혜택이나 '제12조'가 없습니다. 그럴듯한 조항 번호를 붙인 출처 날조입니다." },
+      { t: "스터디룸은 2~6인이 이용할 수 있으며 도서관 홈페이지에서 예약하면 됩니다.", a: "ok",
+        ex: "근거 문서와 일치합니다." },
+      { t: "또한 2024년에 도입된 'AI 사서' 서비스로 24시간 무인 대출도 가능합니다.", a: "fabricated",
+        ex: "근거 문서에 없는 서비스를 연도까지 붙여 지어냈습니다. 존재하지 않는 제도를 만든 근거 날조입니다." },
+    ];
+    let picks = {};
+    function renderSentences() {
+      $("#sentences").innerHTML = SENTENCES.map((s, i) => `
+        <div class="sentence" data-i="${i}">
+          <div class="s-text"><b class="muted">${i + 1}.</b> ${s.t}</div>
+          <div class="seg">${Object.entries(LABELS).map(([k, v]) => `<button data-k="${k}" class="${picks[i] === k ? "on" : ""}">${v}</button>`).join("")}</div>
+          <div class="s-explain"></div>
+        </div>`).join("");
+    }
+    $("#sentences").addEventListener("click", e => {
+      const b = e.target.closest(".seg button");
+      if (!b || b.disabled) return;
+      const i = +b.closest(".sentence").dataset.i;
+      picks[i] = b.dataset.k;
+      $$("button", b.parentElement).forEach(x => x.classList.toggle("on", x === b));
+    });
+    $("#check-sent").addEventListener("click", () => {
+      const fb = $("#sent-fb");
+      if (Object.keys(picks).length < SENTENCES.length) {
+        fb.className = "feedback show info";
+        fb.textContent = `아직 판정하지 않은 문장이 ${SENTENCES.length - Object.keys(picks).length}개 있어요.`;
+        return;
+      }
+      let score = 0;
+      $$(".sentence").forEach((el, i) => {
+        const s = SENTENCES[i], ok = picks[i] === s.a;
+        if (ok) score++;
+        el.classList.add(ok ? "correct" : "wrong", "revealed");
+        $(".s-explain", el).innerHTML = `${ok ? "✅" : "❌"} 정답: <b>${LABELS[s.a]}</b> — ${s.ex}`;
+        $$("button", el).forEach(b => b.disabled = true);
+      });
+      Progress.setPractice(MODULE_ID, "grounding", score, SENTENCES.length);
+      fb.className = "feedback show " + (score >= 6 ? "ok" : "bad");
+      fb.innerHTML = `<b>${SENTENCES.length}문장 중 ${score}개 정답</b>. ` +
+        (score >= 6 ? "훌륭해요! 7문장 중 5문장에 문제가 있었어요. 자연스러운 문장일수록 꼼꼼히 대조해야 합니다."
+                    : "각 문장의 해설을 확인해 보세요. 숫자, 요일, 조항 번호처럼 구체적인 정보일수록 근거 문서와 하나씩 대조하는 습관이 중요합니다.");
+    });
+    $("#reset-sent").addEventListener("click", () => { picks = {}; renderSentences(); $("#sent-fb").className = "feedback"; });
+    renderSentences();
+
+    /* ---------- 퀴즈 ---------- */
+    renderQuiz($("#quiz-box"), MODULE_ID, [
+      { q: "AI 환각(Hallucination)에 대한 설명으로 가장 적절한 것은?",
+        opts: ["AI가 이미지를 잘못 인식하는 현상", "AI가 사실이 아니거나 근거 없는 내용을 그럴듯하게 생성하는 현상",
+               "AI가 질문에 답변을 거부하는 현상", "AI의 응답 속도가 느려지는 현상"], a: 1,
+        ex: "환각의 핵심은 '그럴듯함'입니다. 틀린 티가 나지 않기 때문에 검증이 필요합니다." },
+      { q: "AI가 존재하지 않는 논문 제목과 저자를 근거로 제시했다. 어떤 유형인가?",
+        opts: ["사실 충돌", "근거(출처) 날조", "자기 모순", "맥락 이탈"], a: 1,
+        ex: "없는 출처를 만들어 낸 것은 근거 날조입니다. 출처가 붙어 있어 사용자가 더 쉽게 믿게 되므로 위험합니다." },
+      { q: "환각을 검증할 때 가장 먼저 해야 할 일은?",
+        opts: ["답변 전체가 자연스러운지 읽어 본다", "답변을 확인 가능한 주장 단위로 쪼갠다",
+               "같은 질문을 다시 해서 답이 같으면 사실로 판단한다", "답변이 길면 신뢰도가 높다고 본다"], a: 1,
+        ex: "주장 단위로 쪼개야 하나씩 근거와 대조할 수 있습니다. 같은 답이 반복되어도 사실이라는 보장은 없습니다." },
+      { q: "환각을 줄이기 위한 방법으로 가장 적절한 것은?",
+        opts: ["답변을 더 길게 생성하도록 한다", "신뢰할 수 있는 근거 문서를 검색해 답변하도록 한다(RAG)",
+               "답변에 출처를 아무거나 붙이도록 한다", "사용자에게 검증 책임을 모두 넘긴다"], a: 1,
+        ex: "근거 기반 생성(RAG)은 검색한 근거 문서를 바탕으로 답하게 해 환각을 줄이는 대표적 방법입니다. 그래도 완벽하지 않으므로 테스트는 계속 필요합니다." },
+    ]);
+
+    bindComplete($("#done-btn"), MODULE_ID);
+  </script>
+</body>
+</html>

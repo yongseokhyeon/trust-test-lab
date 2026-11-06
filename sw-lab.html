@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SW 테스트 학습실 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="sw">
+  <header id="site-header"></header>
+
+  <div class="page-head sw">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › SW 테스트 학습실</div>
+      <h1>🧪 SW 테스트 학습실</h1>
+      <p>"이 소프트웨어를 출시해도 될까?" QA 엔지니어는 결함을 찾고, 테스트를 설계하고, 품질을 증명합니다.
+        6개 모듈로 테스트 기초부터 자동화까지 단계별로 익혀 보세요.</p>
+      <div id="track-progress" style="max-width:520px;margin-top:22px"></div>
+    </div>
+  </div>
+
+  <main class="container page-body">
+    <div class="callout" style="margin-top:0">
+      <b>📘 모듈은 이렇게 진행돼요</b>
+      개념 학습 → 미니 실습 → 확인 퀴즈 → 연계 미션 순서로 진행됩니다. 처음이라면 <b>모듈 1</b>부터 순서대로 학습하는 것을 추천해요.
+    </div>
+
+    <div class="block-title"><h2>학습 모듈</h2></div>
+    <div class="module-list" id="module-list"></div>
+
+    <div class="block-title"><h2>이 학습실과 연결된 실습 LAB 미션</h2><a href="lab.html">실습 LAB 전체 보기 →</a></div>
+    <div class="grid grid-3" id="track-missions"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <script>renderTrackRoom("sw");</script>
+</body>
+</html>

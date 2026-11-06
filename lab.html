@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실습 LAB — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="lab">
+  <header id="site-header"></header>
+
+  <div class="page-head">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › 실습 LAB</div>
+      <h1>🔬 실습 LAB</h1>
+      <p>학습실이 '수업'이라면 실습 LAB은 '인턴 업무'입니다. 실제 업무처럼 지시를 받고, 테스트를 수행하고,
+        결과물을 제출하세요. 제출한 결과물은 채점 후 포트폴리오에 저장할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <main class="container page-body">
+    <h2 style="font-size:1.2rem">미션은 이렇게 진행돼요</h2>
+    <div class="flow" style="margin-bottom:44px">
+      <div class="flow-step"><div class="num">1</div><div><b>업무 브리핑</b><span>상황과 과제 확인</span></div></div>
+      <div class="flow-step"><div class="num">2</div><div><b>기준 확인</b><span>규정·요구사항 읽기</span></div></div>
+      <div class="flow-step"><div class="num">3</div><div><b>테스트 수행</b><span>AI 답변·가상 앱 검증</span></div></div>
+      <div class="flow-step"><div class="num">4</div><div><b>결과물 작성</b><span>실무 양식으로 작성</span></div></div>
+      <div class="flow-step"><div class="num">5</div><div><b>채점·피드백</b><span>포트폴리오 저장</span></div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="chips" id="chips" role="group" aria-label="트랙 필터">
+        <button class="chip active" data-v="all">전체</button>
+        <button class="chip" data-v="ai">🤖 AI 검증 미션</button>
+        <button class="chip" data-v="sw">🐞 버그 헌팅 미션</button>
+      </div>
+    </div>
+    <div class="grid grid-3" id="list"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <script>
+    function render(f) {
+      const items = MISSIONS.filter(m => f === "all" || m.track === f)
+        .sort((a, b) => (b.href ? 1 : 0) - (a.href ? 1 : 0));
+      $("#list").innerHTML = items.map(missionCard).join("");
+    }
+    $("#chips").addEventListener("click", e => {
+      const c = e.target.closest(".chip");
+      if (!c) return;
+      $$("#chips .chip").forEach(b => b.classList.toggle("active", b === c));
+      render(c.dataset.v);
+    });
+    render("all");
+  </script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>버그 발견 및 버그 리포트 작성 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="sw">
+  <header id="site-header"></header>
+
+  <div class="page-head sw">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › <a href="sw-lab.html">SW 테스트 학습실</a> › 모듈 5</div>
+      <div class="tags"><span class="tag sw">SW 테스트</span><span class="tag">모듈 5</span><span class="tag">⏱ 약 25분</span></div>
+      <h1>버그 발견 및 버그 리포트 작성</h1>
+      <p>버그를 찾는 것만큼 중요한 건 버그를 '잘 전달하는 것'입니다. 개발자가 바로 재현하고 고칠 수 있는 버그 리포트 작성법을 배워 봅시다.</p>
+    </div>
+  </div>
+
+  <main class="container module-layout">
+    <nav class="toc" aria-label="목차">
+      <h4>학습 순서</h4>
+      <ol>
+        <li><a href="#what"><span class="stage">STEP 1 · 개념</span>버그 리포트란?</a></li>
+        <li><a href="#parts">버그 리포트의 구성</a></li>
+        <li><a href="#severity">심각도와 우선순위</a></li>
+        <li><a href="#rules">좋은 리포트의 5원칙</a></li>
+        <li><a href="#practice1"><span class="stage">STEP 2 · 실습</span>나쁜 리포트 진단하기</a></li>
+        <li><a href="#practice2">심각도 판정하기</a></li>
+        <li><a href="#quiz"><span class="stage">STEP 3 · 퀴즈</span>확인 퀴즈</a></li>
+        <li><a href="#next"><span class="stage">STEP 4 · 다음</span>연계 미션</a></li>
+      </ol>
+    </nav>
+
+    <article class="content">
+      <span class="stage-label">STEP 1 · 개념 학습</span>
+      <h2 id="what">1. 버그 리포트란?</h2>
+      <p><span class="term">버그 리포트</span>는 테스트 중 발견한 <span class="term">결함</span>을 개발자가 <b>재현하고, 이해하고, 수정할 수 있도록</b> 정리한 문서입니다.
+        QA 엔지니어의 실력은 버그를 몇 개 찾았는지뿐 아니라, 리포트가 얼마나 명확한지로도 평가됩니다.</p>
+      <div class="callout">
+        <b>💼 실무에서는</b>
+        Jira 같은 이슈 관리 도구에 버그를 등록하면 개발자, 기획자, PM이 함께 봅니다.
+        재현이 안 되는 리포트는 "재현 불가(Cannot Reproduce)"로 닫히고, 그 버그는 그대로 사용자에게 전달됩니다.
+      </div>
+
+      <h2 id="parts">2. 버그 리포트의 구성</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>작성 내용</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td><b>제목</b></td><td>어디서, 무엇을 하면, 어떤 문제가 생기는지 한 줄로</td><td>[회원가입] 나이에 14 입력 시 가입이 거부됨</td></tr>
+            <tr><td><b>환경</b></td><td>OS, 브라우저, 앱 버전, 서버</td><td>Windows 11 / Chrome 130 / v1.0 테스트 서버</td></tr>
+            <tr><td><b><span class="term">재현 절차</span></b></td><td>누구나 따라 할 수 있는 번호 매긴 단계</td><td>1. 회원가입 페이지 접속 2. 나이에 14 입력 …</td></tr>
+            <tr><td><b>기대 결과</b></td><td>요구사항에 따라 <b>원래 일어나야 할 일</b></td><td>14세 이상이므로 가입 성공 (REQ-05)</td></tr>
+            <tr><td><b>실제 결과</b></td><td>실제로 일어난 일 (메시지 원문 그대로)</td><td>"14세 이상만 가입할 수 있습니다" 오류 표시</td></tr>
+            <tr><td><b><span class="term">심각도</span> / <span class="term">우선순위</span></b></td><td>영향의 크기 / 수정의 시급성</td><td>높음 / 높음</td></tr>
+            <tr><td><b>첨부</b></td><td>스크린샷, 영상, 로그</td><td>error_14.png</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="severity">3. 심각도와 우선순위</h2>
+      <p>둘은 비슷해 보이지만 다릅니다. <b>심각도</b>는 결함이 시스템에 미치는 <b>기술적 영향</b>이고, <b>우선순위</b>는 <b>얼마나 빨리 고쳐야 하는지</b>에 대한 비즈니스 판단입니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>심각도</th><th>기준</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag bad">치명적</span></td><td>시스템 중단, 데이터 손실, 보안 사고, 핵심 기능 전체 불가</td><td>결제 버튼을 누르면 앱이 종료됨</td></tr>
+            <tr><td><span class="tag bad">높음</span></td><td>주요 기능이 잘못 동작하고 우회 방법이 없음</td><td>정상 사용자가 회원가입을 할 수 없음</td></tr>
+            <tr><td><span class="tag warn">보통</span></td><td>기능 일부에 문제가 있지만 우회 방법이 있음</td><td>검색 필터 하나가 동작하지 않음</td></tr>
+            <tr><td><span class="tag">낮음</span></td><td>사용에 지장 없는 사소한 문제</td><td>버튼 문구 오탈자, 정렬 어긋남</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">
+        <b>⚠️ 심각도 ≠ 우선순위</b>
+        메인 화면 회사 로고 오탈자는 심각도는 <b>낮음</b>이지만, 모든 사용자가 보므로 우선순위는 <b>높음</b>일 수 있어요.
+      </div>
+
+      <h2 id="rules">4. 좋은 버그 리포트의 5원칙</h2>
+      <ol>
+        <li><b>재현 가능하게:</b> 다른 사람이 따라 하면 똑같이 버그가 나와야 합니다.</li>
+        <li><b>하나의 리포트에 하나의 버그:</b> 여러 문제를 섞으면 추적과 수정 확인이 어려워요.</li>
+        <li><b>사실만, 구체적으로:</b> "이상해요", "가끔 안 돼요" 대신 입력값과 메시지 원문을 적습니다.</li>
+        <li><b>기대 결과의 근거 제시:</b> 요구사항 번호를 함께 적으면 논쟁이 줄어듭니다.</li>
+        <li><b>감정 배제:</b> "개발을 어떻게 한 거냐" 같은 표현은 협업을 망칩니다.</li>
+      </ol>
+
+      <!-- 실습 1 -->
+      <span class="stage-label" style="margin-top:2.4em">STEP 2 · 미니 실습</span>
+      <h2 id="practice1" style="margin-top:.2em">5. 실습 ①: 나쁜 버그 리포트 진단하기</h2>
+      <div class="practice">
+        <div class="practice-head"><h3>✋ 이 리포트의 문제점은?</h3><span class="tag sw">복수 선택</span></div>
+        <div class="report-card" style="background:var(--bg-alt)">
+          <div class="tags"><span class="tag">BUG-031</span><span class="tag">심각도: 치명적</span></div>
+          <h4>로그인 안 됨!!!</h4>
+          <dl>
+            <dt>내용</dt><dd>로그인이 안 돼요. 몇 번 해 봤는데 가끔 되고 가끔 안 됩니다. 이거 출시 전에 테스트 안 해 보신 건가요? 빨리 고쳐 주세요.</dd>
+          </dl>
+        </div>
+        <p class="small muted" style="margin:14px 0 10px">이 리포트에 해당하는 문제점을 <b>모두</b> 고르세요.</p>
+        <div id="diag"></div>
+        <div class="btn-row" style="margin-top:12px"><button class="btn btn-primary" id="check-diag">채점하기</button></div>
+        <div class="feedback" id="diag-fb"></div>
+      </div>
+
+      <!-- 실습 2 -->
+      <h2 id="practice2">6. 실습 ②: 심각도 판정하기</h2>
+      <div class="practice">
+        <div class="practice-head"><h3>✋ 이 버그의 심각도는?</h3><span class="tag sw">4문항</span></div>
+        <div class="instruction">쇼핑몰 서비스에서 발견된 버그입니다. 각 버그의 <b>심각도</b>를 선택하세요.</div>
+        <div id="sev"></div>
+        <div class="btn-row" style="margin-top:12px"><button class="btn btn-primary" id="check-sev">채점하기</button></div>
+        <div class="feedback" id="sev-fb"></div>
+      </div>
+
+      <!-- 퀴즈 -->
+      <span class="stage-label" style="margin-top:2.4em">STEP 3 · 확인 퀴즈</span>
+      <h2 id="quiz" style="margin-top:.2em">7. 확인 퀴즈</h2>
+      <div class="practice" id="quiz-box"></div>
+
+      <div class="complete-box">
+        <div><b>이 모듈을 다 학습하셨나요?</b><div class="small muted">완료 표시를 하면 학습실 진도에 반영됩니다.</div></div>
+        <button class="btn btn-primary" id="done-btn">학습 완료로 표시</button>
+      </div>
+
+      <span class="stage-label" style="margin-top:2.4em">STEP 4 · 다음 단계</span>
+      <h2 id="next" style="margin-top:.2em">8. 배운 것을 실무처럼 써 보기</h2>
+      <div class="next-card">
+        <div>
+          <div class="small" style="font-weight:800;opacity:.85">🔬 실습 LAB 연계 미션</div>
+          <h3>회원가입 기능 배포 전 테스트</h3>
+          <p>결함 5개가 숨어 있는 가상 회원가입 화면을 테스트하고, 테스트 케이스와 버그 리포트를 작성합니다.</p>
+        </div>
+        <a class="btn btn-lg" href="mission-signup.html">미션 시작 →</a>
+      </div>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const MODULE_ID = "sw-5";
+    Progress.setLast("module-bug-report.html", "SW 테스트 학습실 · 버그 발견 및 버그 리포트 작성");
+
+    /* ---------- 실습 1: 진단 ---------- */
+    const DIAG = [
+      { t: "제목이 모호해서 어느 화면의 어떤 문제인지 알 수 없다", a: true },
+      { t: "재현 절차(어떤 계정, 어떤 입력으로 시도했는지)가 없다", a: true },
+      { t: "기대 결과와 실제 결과(오류 메시지 등)가 구분되어 있지 않다", a: true },
+      { t: "테스트 환경(브라우저, 기기, 버전) 정보가 없다", a: true },
+      { t: "감정적이고 비난하는 표현이 들어 있다", a: true },
+      { t: "버그 ID가 붙어 있다", a: false },
+      { t: "리포트가 너무 길다", a: false },
+    ];
+    $("#diag").innerHTML = DIAG.map((d, i) =>
+      `<label class="check-opt" data-i="${i}"><input type="checkbox"> <span>${d.t}</span></label>`).join("");
+    $("#check-diag").addEventListener("click", () => {
+      let correct = 0;
+      $$("#diag .check-opt").forEach((el, i) => {
+        const on = $("input", el).checked, ans = DIAG[i].a;
+        el.classList.remove("correct", "wrong", "missed");
+        if (on && ans) { el.classList.add("correct"); correct++; }
+        else if (on && !ans) el.classList.add("wrong");
+        else if (!on && ans) el.classList.add("missed");
+        else correct++;
+      });
+      Progress.setPractice(MODULE_ID, "diagnose", correct, DIAG.length);
+      const fb = $("#diag-fb");
+      fb.className = "feedback show " + (correct === DIAG.length ? "ok" : "bad");
+      fb.innerHTML = `<b>${DIAG.length}개 중 ${correct}개 정확히 판단</b> (초록: 정답, 빨강: 잘못 고름, 주황: 놓침)<br>
+        이 리포트는 <b>5가지</b> 문제가 있어요. "가끔 된다"는 표현은 오히려 <b>재현 조건</b>(특정 계정, 특정 시간, 특정 입력)을 찾아 적어야 한다는 신호입니다.
+        <details style="margin-top:8px"><summary style="cursor:pointer;font-weight:700">✍️ 이렇게 고쳐 쓸 수 있어요</summary>
+        <div style="margin-top:8px"><b>제목:</b> [로그인] 비밀번호에 특수문자(!)가 포함된 계정은 로그인 실패<br>
+        <b>환경:</b> Windows 11 / Chrome 130 / v2.3 스테이징<br>
+        <b>재현 절차:</b> 1. 로그인 페이지 접속 2. ID test01, PW abc123! 입력 3. 로그인 클릭<br>
+        <b>기대 결과:</b> 로그인 성공 후 메인 화면 이동<br>
+        <b>실제 결과:</b> "아이디 또는 비밀번호가 올바르지 않습니다" 표시 (특수문자 없는 계정은 정상)<br>
+        <b>심각도:</b> 높음</div></details>`;
+    });
+
+    /* ---------- 실습 2: 심각도 ---------- */
+    const SEV_LEVELS = ["치명적", "높음", "보통", "낮음"];
+    const SEV = [
+      { t: "결제 완료 버튼을 누르면 카드 결제는 되지만 주문 내역이 생성되지 않는다.", a: "치명적",
+        ex: "돈은 빠져나갔는데 주문이 없습니다. 금전 손실과 데이터 불일치가 생기는 치명적 결함입니다." },
+      { t: "비밀번호 찾기 메일이 발송되지 않는다. (고객센터로 재설정은 가능)", a: "보통",
+        ex: "주요 기능이지만 고객센터라는 우회 방법이 있어 '보통'으로 봅니다. 사용자 수가 많다면 우선순위는 높게 잡을 수 있어요." },
+      { t: "상품 상세 페이지의 '배송 안내' 문구에 오탈자가 있다.", a: "낮음",
+        ex: "기능에 영향이 없는 표시상의 사소한 문제입니다." },
+      { t: "장바구니에 상품을 담아도 수량이 항상 1개로만 저장되어 여러 개를 주문할 방법이 없다.", a: "높음",
+        ex: "주요 기능이 잘못 동작하고 우회 방법이 없어 '높음'입니다. 시스템이 멈추거나 데이터가 손실되지는 않으므로 치명적까지는 아닙니다." },
+    ];
+    const sevPick = {};
+    $("#sev").innerHTML = SEV.map((s, i) => `
+      <div class="sentence" data-i="${i}">
+        <div class="s-text"><b class="muted">${i + 1}.</b> ${s.t}</div>
+        <div class="seg">${SEV_LEVELS.map(l => `<button data-k="${l}">${l}</button>`).join("")}</div>
+        <div class="s-explain"></div>
+      </div>`).join("");
+    $("#sev").addEventListener("click", e => {
+      const b = e.target.closest(".seg button");
+      if (!b || b.disabled) return;
+      sevPick[b.closest(".sentence").dataset.i] = b.dataset.k;
+      $$("button", b.parentElement).forEach(x => x.classList.toggle("on", x === b));
+    });
+    $("#check-sev").addEventListener("click", () => {
+      const fb = $("#sev-fb");
+      if (Object.keys(sevPick).length < SEV.length) {
+        fb.className = "feedback show info"; fb.textContent = "모든 버그의 심각도를 선택해 주세요."; return;
+      }
+      let score = 0;
+      $$("#sev .sentence").forEach((el, i) => {
+        const ok = sevPick[i] === SEV[i].a;
+        if (ok) score++;
+        el.classList.add(ok ? "correct" : "wrong", "revealed");
+        $(".s-explain", el).innerHTML = `${ok ? "✅" : "❌"} 정답: <b>${SEV[i].a}</b> — ${SEV[i].ex}`;
+        $$("button", el).forEach(b => b.disabled = true);
+      });
+      Progress.setPractice(MODULE_ID, "severity", score, SEV.length);
+      fb.className = "feedback show " + (score >= 3 ? "ok" : "bad");
+      fb.innerHTML = `<b>${SEV.length}문항 중 ${score}개 정답.</b> 심각도는 "우회 방법이 있는가?", "돈·데이터·보안에 영향이 있는가?"를 기준으로 판단해 보세요.`;
+    });
+
+    /* ---------- 퀴즈 ---------- */
+    renderQuiz($("#quiz-box"), MODULE_ID, [
+      { q: "버그 리포트에서 가장 중요한 항목으로, 이것이 없으면 '재현 불가'로 닫힐 가능성이 높은 것은?",
+        opts: ["스크린샷", "재현 절차", "작성자 이름", "버그 ID"], a: 1,
+        ex: "개발자가 버그를 직접 다시 발생시킬 수 있어야 원인을 찾고 수정을 확인할 수 있습니다." },
+      { q: "'기대 결과'를 작성할 때 가장 좋은 근거는?",
+        opts: ["테스터의 개인적인 느낌", "다른 앱에서의 동작", "요구사항 명세서", "개발자의 설명"], a: 2,
+        ex: "기대 결과는 요구사항에 근거해야 합니다. 요구사항 번호(예: REQ-05)를 함께 적으면 좋아요." },
+      { q: "로그인 화면에서 버그 2개(오탈자, 비밀번호 오류)를 발견했다. 올바른 보고 방법은?",
+        opts: ["하나의 리포트에 모두 적는다", "각각 별도의 리포트로 작성한다", "심각한 것만 보고한다", "구두로만 전달한다"], a: 1,
+        ex: "'하나의 리포트에 하나의 버그' 원칙입니다. 각각 수정 상태를 따로 추적해야 하기 때문입니다." },
+      { q: "심각도와 우선순위에 대한 설명으로 옳은 것은?",
+        opts: ["둘은 항상 같다", "심각도가 낮으면 우선순위도 반드시 낮다",
+               "심각도는 기술적 영향, 우선순위는 수정의 시급성이다", "우선순위는 테스터만 정한다"], a: 2,
+        ex: "로고 오탈자처럼 심각도는 낮지만 우선순위는 높은 경우가 있습니다." },
+    ]);
+
+    bindComplete($("#done-btn"), MODULE_ID);
+  </script>
+</body>
+</html>

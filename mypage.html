@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="my">
+  <header id="site-header"></header>
+
+  <div class="page-head">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › 마이페이지</div>
+      <h1>👤 마이페이지</h1>
+      <p>학습 기록, 테스트 결과, 그리고 직접 만든 결과물을 한눈에 확인하세요. 모든 기록은 이 브라우저에 저장됩니다.</p>
+      <div class="grid grid-4" id="summary" style="margin-top:24px"></div>
+    </div>
+  </div>
+
+  <main class="container page-body">
+    <div class="tabs" role="tablist">
+      <button class="tab" data-tab="records" role="tab">📈 학습 기록</button>
+      <button class="tab" data-tab="results" role="tab">🎯 테스트 결과</button>
+      <button class="tab" data-tab="portfolio" role="tab">📁 내 포트폴리오</button>
+    </div>
+
+    <section id="tab-records" class="tab-panel" style="padding:0"></section>
+    <section id="tab-results" class="tab-panel" style="padding:0"></section>
+    <section id="tab-portfolio" class="tab-panel" style="padding:0"></section>
+
+    <div style="margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+      <span class="small muted">학습 기록은 이 브라우저에만 저장되어, 브라우저 데이터를 지우면 함께 사라집니다.</span>
+      <button class="btn btn-danger btn-sm" id="reset-all">모든 기록 초기화</button>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const CAT_NAME = { ok: "정상 답변 판별", factual: "사실 오류 탐지", hallucination: "환각 탐지", bias: "편향 탐지", safety: "안전성 위험 탐지", privacy: "개인정보 노출 탐지" };
+    const CAT_MODULE = { ok: "ai-2", factual: "ai-2", hallucination: "ai-3", bias: "ai-4", safety: "ai-5", privacy: "ai-6" };
+    const REQ_NAME = { "REQ-01": "아이디 입력 검증", "REQ-02": "비밀번호 규칙", "REQ-04": "이메일 형식", "REQ-05": "나이 경계값", "REQ-06": "필수 약관 동의" };
+    const PRACTICE_NAME = { grounding: "근거 문서 대조", diagnose: "나쁜 리포트 진단", severity: "심각도 판정" };
+    const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const modById = id => MODULES.find(m => m.id === id);
+
+    function render() {
+      const s = Store.load();
+      const ai = Progress.track("ai"), sw = Progress.track("sw");
+      const missionIds = Object.keys(s.missions);
+      const quizzes = Object.values(s.modules).filter(m => m.quiz);
+      const quizAvg = quizzes.length ? Math.round(quizzes.reduce((a, m) => a + pct(m.quiz.score, m.quiz.total), 0) / quizzes.length) : null;
+
+      $("#summary").innerHTML = `
+        <div class="stat-tile"><div class="label">전체 학습 진도</div><div class="value">${pct(ai.done + sw.done, ai.total + sw.total)}<small>%</small></div><div class="progress"><i style="width:${pct(ai.done + sw.done, ai.total + sw.total)}%"></i></div></div>
+        <div class="stat-tile"><div class="label">퀴즈 평균 정답률</div><div class="value">${quizAvg ?? "-"}<small>${quizAvg !== null ? "%" : ""}</small></div><div class="small muted">${quizzes.length}개 퀴즈 응시</div></div>
+        <div class="stat-tile"><div class="label">완료한 미션</div><div class="value">${missionIds.length}<small> / ${MISSIONS.length}</small></div><div class="small muted">실습 LAB</div></div>
+        <div class="stat-tile"><div class="label">포트폴리오 결과물</div><div class="value">${s.portfolio.length}<small>건</small></div><div class="small muted">저장된 리포트</div></div>`;
+
+      /* ---------- 학습 기록 ---------- */
+      $("#tab-records").innerHTML = ["ai", "sw"].map(k => {
+        const t = TRACKS[k], p = Progress.track(k);
+        return `
+          <div class="card" style="margin-bottom:22px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+              <h3 style="margin:0">${t.icon} ${t.room}</h3>
+              <span class="muted small">${p.done} / ${p.total} 모듈 완료 · ${p.pct}%</span>
+            </div>
+            <div class="progress ${k}" style="margin-bottom:16px"><i style="width:${p.pct}%"></i></div>
+            <div class="table-wrap" style="margin:0">
+              <table>
+                <thead><tr><th>모듈</th><th>상태</th><th>퀴즈</th><th>미니 실습</th><th>완료일</th></tr></thead>
+                <tbody>${MODULES.filter(m => m.track === k).map(m => {
+                  const st = s.modules[m.id] || {};
+                  const prac = st.practice ? Object.entries(st.practice).map(([pk, v]) => `${v.name || PRACTICE_NAME[pk] || pk} ${v.score}/${v.total}`).join("<br>") : "-";
+                  const status = st.done ? '<span class="tag ok">완료</span>' : (st.quiz || st.practice) ? '<span class="tag warn">학습 중</span>' : m.href ? '<span class="tag">시작 전</span>' : '<span class="tag">준비 중</span>';
+                  return `<tr>
+                    <td>${m.href ? `<a href="${m.href}">${m.no}. ${m.title}</a>` : `<span class="muted">${m.no}. ${m.title}</span>`}</td>
+                    <td>${status}</td>
+                    <td>${st.quiz ? `${st.quiz.score}/${st.quiz.total}` : "-"}</td>
+                    <td class="small">${prac}</td>
+                    <td class="small">${st.done ? fmtDate(st.doneAt) : "-"}</td></tr>`;
+                }).join("")}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }).join("") + (s.last ? `<div class="continue-card"><div><div class="small" style="color:var(--primary);font-weight:800">최근 학습</div><b>${esc(s.last.title)}</b><div class="small muted">${fmtDate(s.last.at)}</div></div><a class="btn btn-primary" href="${s.last.href}">이어서 하기</a></div>` : "");
+
+      /* ---------- 테스트 결과 ---------- */
+      const skills = [];
+      Object.entries(s.modules).forEach(([id, st]) => {
+        if (st.quiz) skills.push({ name: `${modById(id).title} 퀴즈`, pct: pct(st.quiz.score, st.quiz.total), mod: id });
+      });
+      const chat = s.missions["m-ai-chatbot"];
+      if (chat && chat.detail && chat.detail.cats) {
+        Object.entries(chat.detail.cats).forEach(([c, v]) => skills.push({ name: CAT_NAME[c], pct: pct(v.c, v.t), mod: CAT_MODULE[c] }));
+      }
+      // 버그 헌팅 미션(회원가입·장바구니·예약): 결함 발견율과 리포트 품질을 합산
+      const hunts = MISSIONS.map(m => s.missions[m.id]).filter(r => r && r.detail && r.detail.found !== undefined);
+      if (hunts.length) {
+        const f = hunts.reduce((a, r) => a + r.detail.found, 0), t = hunts.reduce((a, r) => a + r.detail.total, 0);
+        skills.push({ name: "결함 발견율 (버그 헌팅)", pct: pct(f, t), mod: "sw-3" });
+        skills.push({ name: "버그 리포트 품질", pct: Math.round(hunts.reduce((a, r) => a + pct(r.detail.qualityPts, 25), 0) / hunts.length), mod: "sw-5" });
+      }
+      // AI 미션(팩트체크·공정성): 항목별 정답률
+      MISSIONS.forEach(m => {
+        const r = s.missions[m.id];
+        if (r && r.detail && r.detail.breakdown) r.detail.breakdown.forEach(b => skills.push({ name: b.name, pct: pct(b.c, b.t), mod: b.mod }));
+      });
+      const weak = skills.filter(x => x.pct < 70).sort((a, b) => a.pct - b.pct);
+      const strong = skills.filter(x => x.pct >= 80);
+
+      const missionCards = MISSIONS.filter(m => s.missions[m.id]).map(m => {
+        const r = s.missions[m.id];
+        let detail = "";
+        if (m.id === "m-ai-chatbot" && r.detail) {
+          detail = Object.entries(r.detail.cats || {}).map(([c, v]) => `
+            <div class="score-breakdown" style="margin-bottom:8px"><div class="row"><span class="small">${CAT_NAME[c]}</span><div class="progress ai"><i style="width:${pct(v.c, v.t)}%"></i></div><b class="small">${v.c}/${v.t}</b></div></div>`).join("");
+        }
+        if (r.detail && r.detail.found !== undefined) {
+          const missed = r.detail.missedLabels || (r.detail.missed || []).map(q => `${q} ${REQ_NAME[q] || ""}`);
+          detail = `<p class="small" style="margin:0 0 6px">결함 <b>${r.detail.found}/${r.detail.total}</b>개 보고 · 리포트 품질 ${r.detail.qualityPts}/25 · ${r.detail.tcLabel || "테스트 케이스"} ${r.detail.tcPts}/15${r.detail.falsePos ? ` · 오탐 ${r.detail.falsePos}건` : ""}</p>
+            ${missed.length ? `<p class="small" style="margin:0">놓친 결함: ${missed.map(q => `<span class="tag bad">${esc(q)}</span>`).join(" ")}</p>` : '<p class="small" style="margin:0"><span class="tag ok">숨겨진 결함 모두 발견 🎉</span></p>'}`;
+        }
+        if (r.detail && r.detail.breakdown) {
+          detail = r.detail.breakdown.map(b => `
+            <div class="score-breakdown" style="margin-bottom:8px"><div class="row"><span class="small">${b.name}</span><div class="progress ai"><i style="width:${pct(b.c, b.t)}%"></i></div><b class="small">${b.c}/${b.t}</b></div></div>`).join("");
+        }
+        return `
+          <div class="card">
+            <div class="tags"><span class="tag ${m.track}">${TRACKS[m.track].name}</span><span class="tag">도전 ${r.attempts}회</span></div>
+            <h3>${m.title}</h3>
+            <div style="display:flex;gap:24px;margin:6px 0 14px">
+              <div><div class="small muted">최고 점수</div><b style="font-size:1.5rem">${r.best}</b></div>
+              <div><div class="small muted">최근 점수</div><b style="font-size:1.5rem">${r.last}</b></div>
+              <div><div class="small muted">최근 응시</div><b>${fmtDate(r.at)}</b></div>
+            </div>
+            <div class="grow">${detail}</div>
+            <div class="card-foot"><span>📄 ${m.output}</span><a class="btn btn-ghost btn-sm" href="${m.href}">결과 다시 보기</a></div>
+          </div>`;
+      }).join("");
+
+      $("#tab-results").innerHTML = !skills.length && !missionCards
+        ? `<div class="empty">아직 테스트 결과가 없습니다.<br><span class="small">학습실의 퀴즈나 실습 LAB 미션을 완료하면 이곳에 결과와 분석이 표시됩니다.</span><br><br><a class="btn btn-primary" href="lab.html">실습 LAB 가기</a></div>`
+        : `
+          <h2 style="font-size:1.2rem">🧭 강점·약점 분석</h2>
+          <div class="grid grid-2" style="margin-bottom:36px">
+            <div class="card">
+              <h3>💪 강점 (80% 이상)</h3>
+              ${strong.length ? strong.map(x => `<div class="score-breakdown" style="margin-bottom:8px"><div class="row"><span class="small">${x.name}</span><div class="progress ok"><i style="width:${x.pct}%"></i></div><b class="small">${x.pct}%</b></div></div>`).join("") : '<p class="small">아직 80% 이상인 영역이 없어요. 꾸준히 도전해 보세요!</p>'}
+            </div>
+            <div class="card">
+              <h3>📌 보완이 필요한 영역 (70% 미만)</h3>
+              ${weak.length ? weak.map(x => {
+                const m = modById(x.mod);
+                return `<div class="score-breakdown" style="margin-bottom:4px"><div class="row"><span class="small">${x.name}</span><div class="progress warn"><i style="width:${x.pct}%"></i></div><b class="small">${x.pct}%</b></div></div>
+                  <p class="small" style="margin:0 0 12px">→ 추천 학습: ${m.href ? `<a href="${m.href}">${TRACKS[m.track].room} · ${m.title}</a>` : `${TRACKS[m.track].room} · ${m.title} <span class="tag">준비 중</span>`}</p>`;
+              }).join("") : '<p class="small">70% 미만인 영역이 없어요. 훌륭합니다! 👏</p>'}
+            </div>
+          </div>
+          ${missionCards ? `<h2 style="font-size:1.2rem">🔬 실습 LAB 미션 결과</h2><div class="grid grid-2" style="margin-bottom:36px">${missionCards}</div>` : ""}
+          ${quizzes.length ? `<h2 style="font-size:1.2rem">📝 퀴즈·미니 실습 결과</h2>
+            <div class="table-wrap"><table>
+              <thead><tr><th>모듈</th><th>퀴즈</th><th>정답률</th><th>미니 실습</th><th>응시일</th></tr></thead>
+              <tbody>${Object.entries(s.modules).filter(([, st]) => st.quiz || st.practice).map(([id, st]) => `<tr>
+                <td>${modById(id).title}</td>
+                <td>${st.quiz ? `${st.quiz.score}/${st.quiz.total}` : "-"}</td>
+                <td>${st.quiz ? pct(st.quiz.score, st.quiz.total) + "%" : "-"}</td>
+                <td class="small">${st.practice ? Object.entries(st.practice).map(([pk, v]) => `${v.name || PRACTICE_NAME[pk] || pk} ${v.score}/${v.total}`).join("<br>") : "-"}</td>
+                <td class="small">${st.quiz ? fmtDate(st.quiz.at) : "-"}</td></tr>`).join("")}</tbody>
+            </table></div>` : ""}`;
+
+      /* ---------- 포트폴리오 ---------- */
+      const items = Portfolio.list();
+      $("#tab-portfolio").innerHTML = `
+        <div class="callout" style="margin-top:0">
+          <b>💼 포트폴리오 활용 팁</b>
+          실습 LAB 미션에서 제출한 결과물을 저장하면 이곳에 모입니다. 결과물을 열어 취업 포트폴리오에 정리하고,
+          "어떤 기준으로 무엇을 찾았고, 어떻게 판단했는지"를 함께 설명하면 실무 역량을 효과적으로 보여줄 수 있어요.
+        </div>
+        ${items.length ? `<div class="grid grid-3">${items.map(p => `
+          <article class="card">
+            <div class="icon-box ${p.track}">${p.track === "ai" ? "📊" : "🐞"}</div>
+            <div class="tags"><span class="tag ${p.track}">${TRACKS[p.track].name}</span><span class="tag">${esc(p.typeName)}</span></div>
+            <h3>${esc(p.title)}</h3>
+            <p class="grow">${esc(p.summary)}</p>
+            <div class="card-foot">
+              <span>${fmtDate(p.at)} · <b style="color:var(--primary)">${p.score}점</b></span>
+              <div class="btn-row">
+                <button class="btn btn-ghost btn-sm" data-del="${p.id}">삭제</button>
+                <button class="btn btn-primary btn-sm" data-view="${p.id}">열어 보기</button>
+              </div>
+            </div>
+          </article>`).join("")}</div>`
+        : `<div class="empty">아직 저장된 결과물이 없습니다.<br><span class="small">실습 LAB 미션을 제출한 뒤 "포트폴리오에 저장"을 눌러 보세요.</span><br><br><a class="btn btn-primary" href="lab.html">실습 LAB 가기</a></div>`}`;
+    }
+
+    $("#tab-portfolio").addEventListener("click", e => {
+      const v = e.target.closest("[data-view]"), d = e.target.closest("[data-del]");
+      if (v) openModal(renderPortfolioDoc(Portfolio.get(v.dataset.view)));
+      if (d && confirm("이 결과물을 포트폴리오에서 삭제할까요?")) { Portfolio.remove(d.dataset.del); render(); toast("삭제했어요."); }
+    });
+
+    $("#reset-all").addEventListener("click", () => {
+      if (!confirm("학습 기록, 테스트 결과, 포트폴리오를 모두 삭제합니다. 되돌릴 수 없어요. 계속할까요?")) return;
+      Store.reset(); render(); toast("모든 기록을 초기화했습니다.");
+    });
+
+    /* ---------- 탭 ---------- */
+    function showTab(name) {
+      if (!["records", "results", "portfolio"].includes(name)) name = "records";
+      $$(".tab").forEach(t => { const on = t.dataset.tab === name; t.classList.toggle("active", on); t.setAttribute("aria-selected", on); });
+      $$(".tab-panel").forEach(p => p.classList.toggle("hidden", p.id !== "tab-" + name));
+    }
+    $(".tabs").addEventListener("click", e => {
+      const t = e.target.closest(".tab");
+      if (!t) return;
+      history.replaceState(null, "", "#" + t.dataset.tab);
+      showTab(t.dataset.tab);
+    });
+    window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+
+    render();
+    showTab(location.hash.slice(1));
+  </script>
+</body>
+</html>

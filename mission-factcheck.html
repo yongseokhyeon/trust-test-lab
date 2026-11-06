@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI가 쓴 보고서 팩트체크 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="lab">
+  <header id="site-header"></header>
+
+  <div class="page-head ai">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › <a href="lab.html">실습 LAB</a> › AI 검증 미션</div>
+      <div class="tags"><span class="tag ai">AI 검증 미션</span><span class="tag">중급</span><span class="tag">⏱ 약 30분</span><span class="tag blue">결과물: 환각 분석 리포트</span></div>
+      <h1>AI가 쓴 보고서 팩트체크</h1>
+      <ol class="stepper" id="stepper">
+        <li><span class="dot">1</span>업무 브리핑</li><li><span class="dot">2</span>문장별 팩트체크</li>
+        <li><span class="dot">3</span>리포트 작성</li><li><span class="dot">4</span>결과·피드백</li>
+      </ol>
+    </div>
+  </div>
+
+  <main class="container page-body">
+    <div class="brief ai">
+      <div class="from">📨 보낸 사람: 트러스트교육연구소 홍보팀 · 받는 사람: AI 품질 검증 담당자(나)</div>
+      <h2>업무 요청: 생성형 AI가 작성한 보도자료 초안 검수</h2>
+      <p>연구소의 「2026 대학생 학습 실태 조사」 결과를 바탕으로 생성형 AI가 보도자료 초안을 작성했습니다. 이 초안이 그대로 언론에 배포되기 전에,
+        왼쪽의 <b>조사 결과표</b>와 <b>출처 확인 결과</b>를 기준으로 <b>문장마다</b> 팩트체크해 주세요.</p>
+      <p style="margin:0">각 문장을 <span class="tag ok">근거 있음</span> <span class="tag warn">근거와 충돌</span> <span class="tag bad">근거 없음(날조)</span> 중 하나로 판정하고,
+        문제가 있는 문장에는 <b>수정 제안</b>을 적어 주세요.</p>
+    </div>
+
+    <div class="mission-grid">
+      <aside class="sticky-panel">
+        <div class="ref-doc">
+          <h3>📊 근거 ① 조사 결과표 (원자료)</h3>
+          <p class="small muted" style="margin:0 0 6px">트러스트교육연구소 「2026 대학생 학습 실태 조사」</p>
+          <dl>
+            <dt>조사 개요</dt><dd>전국 대학생 2,000명, 2026년 3월 온라인 설문</dd>
+            <dt>주 1회 이상 온라인 강의 수강</dt><dd>78%</dd>
+            <dt>하루 평균 온라인 학습 시간</dt><dd>1.8시간</dd>
+            <dt>생성형 AI를 학습에 활용</dt><dd>64%</dd>
+            <dt>AI 활용 목적 (복수 응답 중 1순위)</dt><dd>1위 개념 설명 요청 41% · 2위 과제 아이디어 27% · 3위 문장 다듬기 18%</dd>
+            <dt>AI 답변을 검증 없이 그대로 쓴 경험</dt><dd>35%</dd>
+            <dt>온라인 학습 만족도</dt><dd>5점 만점 3.6점</dd>
+          </dl>
+        </div>
+        <div class="ref-doc" style="margin-top:14px">
+          <h3>🔗 근거 ② 출처 확인 결과</h3>
+          <ul style="margin:0;padding-left:1.2em;color:var(--text-2)">
+            <li>✅ 한빛데이터랩 (2025) 「대학생 온라인 학습 통계」: 2025년 생성형 AI 학습 활용률 <b>52%</b></li>
+            <li>❌ 그 밖의 연구·발표는 연구소 자료와 확인 가능한 출처에서 <b>찾을 수 없음</b></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="block-title" style="margin-top:0"><h2>STEP 2 · 보도자료 초안 팩트체크</h2><span class="tag ai" id="cnt">0 / 10 판정</span></div>
+        <div class="practice" style="margin-top:0">
+          <h3 style="margin-bottom:4px">📰 [보도자료 초안] 대학생 10명 중 6명, AI로 공부한다</h3>
+          <p class="small muted">작성: 생성형 AI · 검수 전</p>
+          <div id="sents"></div>
+        </div>
+
+        <div class="block-title"><h2>STEP 3 · 환각 분석 리포트 작성</h2></div>
+        <div class="practice" style="margin-top:0">
+          <div class="field-row">
+            <div class="field"><label for="m-count">문제 문장 수 (충돌 + 날조)</label><input class="input" id="m-count" inputmode="numeric" placeholder="예: 3"></div>
+            <div class="field"><label for="m-rate">문제 문장 비율 (%)</label><input class="input" id="m-rate" inputmode="numeric" placeholder="예: 30"></div>
+          </div>
+          <div class="field"><label for="m-sum">종합 의견</label>
+            <textarea class="textarea" id="m-sum" placeholder="예: 10문장 중 N문장에서 문제가 발견되었습니다. 특히 존재하지 않는 연구 인용은 …"></textarea></div>
+          <div class="btn-row">
+            <button class="btn btn-primary btn-lg" id="submit">리포트 제출하고 채점받기</button>
+            <button class="btn btn-ghost" id="reset">처음부터 다시</button>
+          </div>
+          <p class="small muted" style="margin:10px 0 0">작성 중인 내용은 자동으로 저장됩니다.</p>
+        </div>
+
+        <div id="result" class="hidden">
+          <div class="block-title"><h2>STEP 4 · 채점 결과와 피드백</h2></div>
+          <div class="score-hero" id="score"></div>
+          <div class="callout" id="metric-fb"></div>
+          <div class="btn-row" style="margin-top:18px">
+            <button class="btn btn-primary btn-lg" id="save-pf">📁 포트폴리오에 저장</button>
+            <a class="btn btn-ghost btn-lg" href="mypage.html#results">마이페이지에서 결과 보기</a>
+            <button class="btn btn-ghost btn-lg" id="retry">다시 도전</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const MISSION_ID = "m-ai-factcheck", DRAFT_KEY = "draft-" + MISSION_ID;
+    Progress.setLast("mission-factcheck.html", "실습 LAB · AI가 쓴 보고서 팩트체크");
+    const LABELS = { ok: "근거 있음", conflict: "근거와 충돌", fabricated: "근거 없음(날조)" };
+    const S = [
+      { t: "이번 조사는 전국 대학생 2,000명을 대상으로 2026년 3월에 실시되었다.", a: "ok", ex: "조사 개요와 일치합니다." },
+      { t: "응답자의 78%가 주 1회 이상 온라인 강의를 수강한다고 답했다.", a: "ok", ex: "결과표와 일치합니다." },
+      { t: "하루 평균 온라인 학습 시간은 2.8시간으로 나타났다.", a: "conflict", ex: "결과표는 1.8시간입니다. 숫자 한 자리가 바뀌는 오류는 눈으로 훑어서는 놓치기 쉬워요.", fix: "하루 평균 온라인 학습 시간은 1.8시간으로 나타났다." },
+      { t: "생성형 AI를 학습에 활용하는 비율은 64%로, 전년(52%) 대비 12%p 증가했다.", a: "ok", ex: "64%(결과표)와 52%(한빛데이터랩, 확인된 출처) 모두 근거가 있고, 차이 계산(12%p)도 맞습니다." },
+      { t: "AI 활용 목적 1위는 '과제 아이디어 얻기'(41%)였다.", a: "conflict", ex: "41%로 1위인 것은 '개념 설명 요청'이고, 과제 아이디어는 27%로 2위입니다. 항목과 수치를 섞어 버린 충돌이에요.", fix: "AI 활용 목적 1위는 '개념 설명 요청'(41%), 2위는 '과제 아이디어 얻기'(27%)였다." },
+      { t: "하버드대 교육대학원의 2025년 연구에 따르면 AI를 활용한 학생의 성적은 평균 23% 향상되었다.", a: "fabricated", ex: "출처 확인 결과에 없는 연구입니다. 유명 기관 이름과 구체적인 수치를 붙여 신뢰를 높이는 전형적인 출처 날조예요.", fix: "확인되지 않은 연구 인용이므로 문장 삭제" },
+      { t: "AI 답변을 검증 없이 그대로 사용한 경험이 있는 학생은 35%에 달했다.", a: "ok", ex: "결과표와 일치합니다." },
+      { t: "온라인 학습 만족도는 5점 만점에 4.6점으로 매우 높게 나타났다.", a: "conflict", ex: "결과표는 3.6점입니다. 수치를 틀린 데다 '매우 높다'는 해석까지 덧붙여 왜곡이 커졌어요.", fix: "온라인 학습 만족도는 5점 만점에 3.6점으로 나타났다." },
+      { t: "연구소는 이 결과를 바탕으로 2027년부터 'AI 학습 인증제'를 시행한다고 밝혔다.", a: "fabricated", ex: "근거 자료 어디에도 없는 발표입니다. 기관이 하지 않은 발표를 보도자료에 넣으면 공식 입장으로 오해받아 큰 문제가 됩니다.", fix: "근거 없는 발표 내용이므로 문장 삭제" },
+      { t: "(한빛데이터랩, 2025)에 따르면 전년도 생성형 AI 학습 활용률은 52%였다.", a: "ok", ex: "출처 확인 결과에서 확인된 자료와 수치입니다. 출처가 붙어 있다고 모두 의심할 필요는 없고, 확인하면 됩니다." },
+    ];
+    const ANSWER_COUNT = S.filter(s => s.a !== "ok").length, ANSWER_RATE = ANSWER_COUNT / S.length * 100;
+
+    let d = Drafts.get(DRAFT_KEY, { picks: {}, fixes: {}, count: "", rate: "", summary: "", submitted: null });
+    const save = () => Drafts.set(DRAFT_KEY, d);
+
+    function render() {
+      $("#sents").innerHTML = S.map((s, i) => `
+        <div class="sentence" data-i="${i}">
+          <div class="s-text"><b class="muted">${i + 1}.</b> ${s.t}</div>
+          <div class="label-pick ai" style="margin:0">${Object.entries(LABELS).map(([k, v]) => `<button data-k="${k}" class="${d.picks[i] === k ? "on" : ""}">${v}</button>`).join("")}</div>
+          <div class="fix ${d.picks[i] && d.picks[i] !== "ok" ? "" : "hidden"}" style="flex-basis:100%">
+            <input class="input" data-fix placeholder="수정 제안 (예: 올바른 문장 또는 '문장 삭제')" value="${esc(d.fixes[i] || "")}"></div>
+          <div class="s-explain"></div>
+        </div>`).join("");
+      $("#m-count").value = d.count; $("#m-rate").value = d.rate; $("#m-sum").value = d.summary;
+      update();
+    }
+    function update() {
+      const n = Object.keys(d.picks).length;
+      $("#cnt").textContent = `${n} / ${S.length} 판정`;
+      const st = [true, n === S.length, n === S.length && d.count !== "" && d.rate !== "", !!d.submitted];
+      let on = false;
+      $$("#stepper li").forEach((li, i) => { li.className = st[i] ? "done" : (on ? "" : "on"); if (!st[i]) on = true; });
+    }
+    $("#sents").addEventListener("click", e => {
+      const b = e.target.closest(".label-pick button");
+      if (!b || b.disabled) return;
+      const el = b.closest(".sentence"), i = el.dataset.i;
+      d.picks[i] = b.dataset.k;
+      $$("button", b.parentElement).forEach(x => x.classList.toggle("on", x === b));
+      $(".fix", el).classList.toggle("hidden", b.dataset.k === "ok");
+      save(); update();
+    });
+    $("#sents").addEventListener("input", e => {
+      if (!e.target.matches("[data-fix]")) return;
+      d.fixes[e.target.closest(".sentence").dataset.i] = e.target.value; save();
+    });
+    $("#m-count").addEventListener("input", e => { d.count = e.target.value.trim(); save(); update(); });
+    $("#m-rate").addEventListener("input", e => { d.rate = e.target.value.trim().replace("%", ""); save(); update(); });
+    $("#m-sum").addEventListener("input", e => { d.summary = e.target.value; save(); });
+
+    function grade() {
+      let correct = 0;
+      const cats = { ok: { c: 0, t: 0 }, conflict: { c: 0, t: 0 }, fabricated: { c: 0, t: 0 } };
+      S.forEach((s, i) => { cats[s.a].t++; if (d.picks[i] === s.a) { correct++; cats[s.a].c++; } });
+      const labelPts = correct * 7;
+      const metricPts = (Number(d.count) === ANSWER_COUNT ? 7 : 0) + (Math.abs(Number(d.rate) - ANSWER_RATE) < 0.5 ? 8 : 0);
+      const flagged = Object.keys(d.picks).filter(i => d.picks[i] !== "ok");
+      const fixed = flagged.filter(i => (d.fixes[i] || "").trim().length >= 4).length;
+      const reportPts = (d.summary.trim().length >= 20 ? 7 : 0) + (flagged.length && fixed / flagged.length >= 0.5 ? 8 : 0);
+      return { total: labelPts + metricPts + reportPts, correct, labelPts, metricPts, reportPts, cats };
+    }
+
+    function showResult(r, scroll) {
+      $$(".sentence").forEach((el, i) => {
+        const s = S[i], ok = d.picks[i] === s.a;
+        el.classList.add(ok ? "correct" : "wrong", "revealed");
+        $(".s-explain", el).innerHTML = `${ok ? "✅" : `❌ 내 판정: ${LABELS[d.picks[i]] || "-"} →`} 정답: <b>${LABELS[s.a]}</b> — ${s.ex}${s.fix ? `<br>✍️ 모범 수정안: ${s.fix}` : ""}`;
+      });
+      $$("#sents button, #sents input, #m-count, #m-rate, #m-sum, #submit").forEach(x => x.disabled = true);
+      $("#result").classList.remove("hidden");
+      $("#score").innerHTML = `
+        <div class="score-ring" style="--p:${r.total}"><div><div><b>${r.total}</b><span>/ 100점</span></div></div></div>
+        <div class="score-breakdown">
+          <div class="row"><span>문장 판정</span><div class="progress ai"><i style="width:${r.labelPts / 70 * 100}%"></i></div><b>${r.labelPts}/70</b></div>
+          <div class="row"><span>지표 계산</span><div class="progress ai"><i style="width:${r.metricPts / 15 * 100}%"></i></div><b>${r.metricPts}/15</b></div>
+          <div class="row"><span>리포트 작성</span><div class="progress ai"><i style="width:${r.reportPts / 15 * 100}%"></i></div><b>${r.reportPts}/15</b></div>
+          <div class="small muted">10문장 중 <b>${r.correct}문장</b> 정확히 판정 · 각 문장 아래 해설과 모범 수정안을 확인하세요.</div>
+        </div>`;
+      $("#metric-fb").innerHTML = `<b>📏 지표 피드백</b>모범 답안은 문제 문장 <b>${ANSWER_COUNT}개</b>(근거와 충돌 3, 날조 2), 비율 <b>${ANSWER_RATE}%</b>입니다.
+        내 답: ${esc(d.count) || "-"}개, ${esc(d.rate) || "-"}%. 보도자료처럼 외부로 나가는 문서에서 문제 비율 ${ANSWER_RATE}%는 배포 불가 수준이며, 날조된 인용과 발표는 반드시 삭제해야 합니다.`;
+      update();
+      if (scroll) $("#result").scrollIntoView({ behavior: "smooth" });
+    }
+
+    $("#submit").addEventListener("click", () => {
+      const left = S.length - Object.keys(d.picks).length;
+      if (left) { toast(`판정하지 않은 문장이 ${left}개 있어요.`); return; }
+      if (d.count === "" || d.rate === "") { toast("문제 문장 수와 비율을 입력해 주세요."); return; }
+      const r = grade();
+      d.submitted = { at: Date.now(), score: r.total }; save();
+      const NAME = { ok: "근거 있는 문장 판별", conflict: "사실 충돌 탐지", fabricated: "날조(출처·발표) 탐지" };
+      const MOD = { ok: "ai-2", conflict: "ai-2", fabricated: "ai-3" };
+      Progress.recordMission(MISSION_ID, r.total, { breakdown: Object.entries(r.cats).map(([k, v]) => ({ name: NAME[k], c: v.c, t: v.t, mod: MOD[k] })) });
+      showResult(r, true);
+      toast(`채점 완료! ${r.total}점`);
+    });
+
+    $("#save-pf").addEventListener("click", () => {
+      const r = grade();
+      Portfolio.add({
+        type: "doc", typeName: "환각 분석 리포트", track: "ai", missionId: MISSION_ID, score: r.total,
+        title: "생성형 AI 작성 보도자료 초안 환각 분석 리포트",
+        summary: `보도자료 초안 10문장 팩트체크 · 문제 문장 ${d.count}개(${d.rate}%) 보고`,
+        content: { sections: [
+          { h: "검수 개요", text: "트러스트교육연구소 「2026 대학생 학습 실태 조사」 결과표와 출처 확인 결과를 근거로, 생성형 AI가 작성한 보도자료 초안 10문장을 문장 단위로 팩트체크함." },
+          { h: "요약 지표", text: `문제 문장 ${d.count}개 / 전체 10문장 (문제 비율 ${d.rate}%)` },
+          { h: "문장별 판정", table: { head: ["#", "문장", "판정", "수정 제안"], rows: S.map((s, i) => [String(i + 1), s.t, LABELS[d.picks[i]] || "-", d.picks[i] !== "ok" ? (d.fixes[i] || "") : ""]) } },
+          { h: "종합 의견", text: d.summary },
+        ] },
+      });
+      $("#save-pf").textContent = "✓ 포트폴리오에 저장됨"; $("#save-pf").disabled = true;
+      toast("포트폴리오에 저장했어요. 마이페이지에서 확인할 수 있습니다.");
+    });
+
+    function restart() {
+      if (!confirm("작성한 내용을 지우고 처음부터 다시 할까요? (포트폴리오에 저장한 결과물은 유지됩니다)")) return;
+      Drafts.clear(DRAFT_KEY); location.reload();
+    }
+    $("#reset").addEventListener("click", restart);
+    $("#retry").addEventListener("click", restart);
+
+    render();
+    if (d.submitted) showResult(grade(), false);
+  </script>
+</body>
+</html>

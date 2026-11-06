@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학습 모듈 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/content-ai.js"></script>
+  <script src="js/content-sw.js"></script>
+</head>
+<body>
+  <header id="site-header"></header>
+  <div id="app"></div>
+  <footer id="site-footer"></footer>
+
+  <script>
+    /* ===========================================================
+       공통 모듈 페이지: module.html?id=ai-1
+       콘텐츠는 js/content-ai.js, js/content-sw.js 에 있습니다.
+       =========================================================== */
+    const MODULE_ID = new URLSearchParams(location.search).get("id");
+    const M = MODULES.find(m => m.id === MODULE_ID);
+    const C = MODULE_CONTENT[MODULE_ID];
+
+    function renderModule() {
+      const T = TRACKS[M.track];
+      document.body.dataset.page = M.track;
+      document.title = `${M.title} — TRUST&TEST LAB`;
+      Progress.setLast(M.href, `${T.room} · ${M.title}`);
+
+      const toc = [
+        ...C.sections.map((s, i) => `<li><a href="#s${i}">${i === 0 ? '<span class="stage">STEP 1 · 개념</span>' : ""}${s.title}</a></li>`),
+        ...C.practices.map((p, i) => `<li><a href="#p${i}">${i === 0 ? '<span class="stage">STEP 2 · 실습</span>' : ""}${p.title}</a></li>`),
+        `<li><a href="#quiz"><span class="stage">STEP 3 · 퀴즈</span>확인 퀴즈</a></li>`,
+        `<li><a href="#next"><span class="stage">STEP 4 · 다음</span>다음 단계</a></li>`,
+      ].join("");
+
+      let n = 0;
+      const sectionHtml = C.sections.map((s, i) => `<h2 id="s${i}">${++n}. ${s.title}</h2>${s.html}`).join("");
+      const practiceHtml = C.practices.map((p, i) => `
+        ${i === 0 ? '<span class="stage-label" style="margin-top:2.4em">STEP 2 · 미니 실습</span>' : ""}
+        <h2 id="p${i}" style="${i === 0 ? "margin-top:.2em" : ""}">${++n}. 실습 ${"①②③④"[i]}: ${p.title}</h2>
+        <div class="practice" data-p="${i}"></div>`).join("");
+
+      $("#app").innerHTML = `
+        <div class="page-head ${M.track}">
+          <div class="container">
+            <div class="breadcrumb"><a href="index.html">홈</a> › <a href="${T.page}">${T.room}</a> › 모듈 ${M.no}</div>
+            <div class="tags"><span class="tag ${M.track}">${T.name}</span><span class="tag">모듈 ${M.no}</span><span class="tag">⏱ 약 ${M.minutes}분</span></div>
+            <h1>${M.title}</h1>
+            <p>${C.lead}</p>
+          </div>
+        </div>
+        <main class="container module-layout">
+          <nav class="toc" aria-label="목차"><h4>학습 순서</h4><ol>${toc}</ol></nav>
+          <article class="content">
+            <span class="stage-label">STEP 1 · 개념 학습</span>
+            ${sectionHtml}
+            ${practiceHtml}
+            <span class="stage-label" style="margin-top:2.4em">STEP 3 · 확인 퀴즈</span>
+            <h2 id="quiz" style="margin-top:.2em">${++n}. 확인 퀴즈</h2>
+            <div class="practice" id="quiz-box"></div>
+            <div class="complete-box">
+              <div><b>이 모듈을 다 학습하셨나요?</b><div class="small muted">완료 표시를 하면 학습실 진도에 반영됩니다.</div></div>
+              <button class="btn btn-primary" id="done-btn">학습 완료로 표시</button>
+            </div>
+            <span class="stage-label" style="margin-top:2.4em">STEP 4 · 다음 단계</span>
+            <h2 id="next" style="margin-top:.2em">${++n}. 다음 단계</h2>
+            ${nextHtml()}
+          </article>
+        </main>`;
+
+      C.practices.forEach((p, i) => PRACTICE[p.type]($(`[data-p="${i}"]`), p, i));
+      renderQuiz($("#quiz-box"), M.id, C.quiz);
+      bindComplete($("#done-btn"), M.id);
+    }
+
+    function nextHtml() {
+      const mission = MISSIONS.find(x => x.id === M.mission);
+      const same = MODULES.filter(m => m.track === M.track);
+      const nextMod = same.find(m => m.no === M.no + 1);
+      const other = M.track === "ai" ? "sw" : "ai";
+      let html = "";
+      if (mission && mission.href) {
+        html += `<div class="next-card"><div>
+            <div class="small" style="font-weight:800;opacity:.85">🔬 실습 LAB 연계 미션</div>
+            <h3>${mission.title}</h3><p>${mission.brief}</p></div>
+          <a class="btn btn-lg" href="${mission.href}">미션 시작 →</a></div>`;
+      } else if (mission) {
+        html += `<div class="callout" style="margin-top:18px"><b>🔬 연계 미션: ${mission.title} <span class="tag">준비 중</span></b>${mission.brief}</div>`;
+      }
+      const target = nextMod
+        ? { label: `다음 모듈 · ${TRACKS[M.track].room} 모듈 ${nextMod.no}`, title: nextMod.title, desc: nextMod.desc, href: nextMod.href }
+        : { label: `${TRACKS[M.track].room} 마지막 모듈을 마쳤어요 🎉`, title: `${TRACKS[other].room}도 둘러보세요`, desc: TRACKS[other].desc, href: TRACKS[other].page };
+      html += `<div class="continue-card" style="margin-top:14px"><div>
+          <div class="small" style="color:var(--primary);font-weight:800">${target.label}</div>
+          <b>${target.title}</b><div class="small muted">${target.desc}</div></div>
+        <a class="btn ${mission && mission.href ? "btn-outline" : "btn-primary"}" href="${target.href}">이동하기 →</a></div>`;
+      return html;
+    }
+
+    /* ===========================================================
+       미니 실습 유형
+       =========================================================== */
+    const PRACTICE = {
+      /* 항목마다 라벨을 고르는 분류 실습 */
+      classify(box, p, idx) {
+        let picks = {};
+        const draw = () => {
+          box.innerHTML = `
+            <div class="practice-head"><h3>✋ ${p.title}</h3><span class="tag ${M.track}">${p.items.length}문항</span></div>
+            <div class="instruction">${p.instruction}</div>
+            ${p.ref || ""}
+            ${p.items.map((it, i) => `
+              <div class="sentence" data-i="${i}">
+                <div class="s-text"><b class="muted">${i + 1}.</b> ${it.t}</div>
+                <div class="label-pick ${M.track}" style="margin:0">${Object.entries(p.labels).map(([k, v]) => `<button data-k="${k}">${v}</button>`).join("")}</div>
+                <div class="s-explain"></div>
+              </div>`).join("")}
+            <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" data-check>채점하기</button><button class="btn btn-ghost" data-reset>다시 하기</button></div>
+            <div class="feedback"></div>`;
+        };
+        draw();
+        box.addEventListener("click", e => {
+          const b = e.target.closest(".label-pick button");
+          if (b && !b.disabled) {
+            picks[b.closest(".sentence").dataset.i] = b.dataset.k;
+            $$("button", b.parentElement).forEach(x => x.classList.toggle("on", x === b));
+            return;
+          }
+          if (e.target.closest("[data-reset]")) { picks = {}; draw(); return; }
+          if (!e.target.closest("[data-check]")) return;
+          const fb = $(".feedback", box);
+          const left = p.items.length - Object.keys(picks).length;
+          if (left > 0) { fb.className = "feedback show info"; fb.textContent = `아직 고르지 않은 문항이 ${left}개 있어요.`; return; }
+          let score = 0;
+          $$(".sentence", box).forEach((el, i) => {
+            const it = p.items[i], ok = picks[i] === it.a;
+            if (ok) score++;
+            el.classList.add(ok ? "correct" : "wrong", "revealed");
+            $(".s-explain", el).innerHTML = `${ok ? "✅" : "❌"} 정답: <b>${p.labels[it.a]}</b> — ${it.ex}`;
+            $$("button", el).forEach(x => x.disabled = true);
+          });
+          finish(box, p, idx, score, p.items.length);
+        });
+      },
+
+      /* 해당하는 것을 모두 고르는 실습 */
+      multi(box, p, idx) {
+        box.innerHTML = `
+          <div class="practice-head"><h3>✋ ${p.title}</h3><span class="tag ${M.track}">복수 선택</span></div>
+          <div class="instruction">${p.instruction}</div>
+          ${p.intro || ""}
+          <div>${p.options.map((o, i) => `<label class="check-opt"><input type="checkbox" data-i="${i}"> <span>${o.t}</span></label>`).join("")}</div>
+          <div class="btn-row" style="margin-top:12px"><button class="btn btn-primary" data-check>채점하기</button></div>
+          <div class="feedback"></div>`;
+        $("[data-check]", box).addEventListener("click", () => {
+          let score = 0;
+          $$(".check-opt", box).forEach((el, i) => {
+            const on = $("input", el).checked, ans = p.options[i].a;
+            el.classList.remove("correct", "wrong", "missed");
+            if (on && ans) { el.classList.add("correct"); score++; }
+            else if (on && !ans) el.classList.add("wrong");
+            else if (!on && ans) el.classList.add("missed");
+            else score++;
+          });
+          finish(box, p, idx, score, p.options.length, "(초록: 정답, 빨강: 잘못 고름, 주황: 놓침)");
+        });
+      },
+
+      /* 순서 맞추기 실습 */
+      order(box, p, idx) {
+        // 정답 순서를 섞어서 시작 (항상 같은 순서로 섞이도록 고정된 규칙 사용)
+        let seed = 7 + idx;
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+        let cur = p.items.map((t, i) => i);
+        for (let i = cur.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cur[i], cur[j]] = [cur[j], cur[i]]; }
+        if (cur.every((v, i) => v === i)) cur.reverse();
+        let locked = false;
+        const draw = () => {
+          box.innerHTML = `
+            <div class="practice-head"><h3>✋ ${p.title}</h3><span class="tag ${M.track}">순서 맞추기</span></div>
+            <div class="instruction">${p.instruction}</div>
+            <div>${cur.map((k, pos) => `
+              <div class="order-item ${locked ? (k === pos ? "correct" : "wrong") : ""}">
+                <span class="num">${pos + 1}</span><span class="grow">${p.items[k]}</span>
+                ${locked ? "" : `<span class="mv"><button class="icon-del" data-up="${pos}" aria-label="위로" ${pos === 0 ? "disabled" : ""}>▲</button><button class="icon-del" data-down="${pos}" aria-label="아래로" ${pos === cur.length - 1 ? "disabled" : ""}>▼</button></span>`}
+              </div>`).join("")}</div>
+            <div class="btn-row" style="margin-top:12px">${locked ? '<button class="btn btn-ghost" data-reset>다시 하기</button>' : '<button class="btn btn-primary" data-check>채점하기</button>'}</div>
+            <div class="feedback"></div>`;
+        };
+        draw();
+        box.addEventListener("click", e => {
+          const up = e.target.closest("[data-up]"), down = e.target.closest("[data-down]");
+          if (up) { const i = +up.dataset.up; [cur[i - 1], cur[i]] = [cur[i], cur[i - 1]]; draw(); return; }
+          if (down) { const i = +down.dataset.down; [cur[i + 1], cur[i]] = [cur[i], cur[i + 1]]; draw(); return; }
+          if (e.target.closest("[data-reset]")) { locked = false; draw(); return; }
+          if (e.target.closest("[data-check]")) {
+            locked = true;
+            const score = cur.filter((k, pos) => k === pos).length;
+            draw();
+            finish(box, p, idx, score, cur.length, "", `<br><b>정답 순서:</b> ${p.items.map((t, i) => `${i + 1}) ${t}`).join(" → ")}`);
+          }
+        });
+      },
+
+      /* 경계값 생성기 (채점 없는 체험형) */
+      bva(box, p) {
+        box.innerHTML = `
+          <div class="practice-head"><h3>🧪 ${p.title}</h3><span class="tag ${M.track}">체험형</span></div>
+          <div class="instruction">${p.instruction}</div>
+          <div class="field-row three" style="align-items:end">
+            <div class="field"><label>최솟값</label><input class="input" type="number" data-min value="${p.min ?? 0}"></div>
+            <div class="field"><label>최댓값</label><input class="input" type="number" data-max value="${p.max ?? 100}"></div>
+            <div class="field"><label>방식</label><select class="select" data-mode><option value="2">2-값 경계값</option><option value="3" selected>3-값 경계값</option></select></div>
+          </div>
+          <div class="number-line"></div>
+          <div class="small" data-msg style="margin-top:10px"></div>`;
+        const run = () => {
+          const min = parseInt($("[data-min]", box).value, 10), max = parseInt($("[data-max]", box).value, 10), mode = $("[data-mode]", box).value;
+          if (Number.isNaN(min) || Number.isNaN(max) || min > max) {
+            $(".number-line", box).innerHTML = ""; $("[data-msg]", box).textContent = "⚠️ 최솟값은 최댓값보다 작거나 같아야 합니다."; return;
+          }
+          const vals = [...new Set(mode === "2" ? [min - 1, min, max, max + 1] : [min - 1, min, min + 1, max - 1, max, max + 1])].sort((a, b) => a - b);
+          $(".number-line", box).innerHTML = vals.map(v => `<span class="nl-item ${v >= min && v <= max ? "valid" : "invalid"}">${v}</span>`).join("");
+          $("[data-msg]", box).innerHTML = `테스트 값 <b>${vals.length}개</b> · <span style="color:var(--ok)">■ 유효(허용되어야 함)</span> &nbsp;<span style="color:var(--bad)">■ 무효(거부되어야 함)</span>`;
+        };
+        box.addEventListener("input", run);
+        run();
+      },
+    };
+
+    function finish(box, p, idx, score, total, legend = "", extra = "") {
+      Progress.setPractice(M.id, "p" + idx, score, total, p.title);
+      const good = score / total >= 0.8;
+      const fb = $(".feedback", box);
+      fb.className = "feedback show " + (good ? "ok" : "bad");
+      fb.innerHTML = `<b>${total}개 중 ${score}개 정답</b> ${legend}<br>${good ? (p.good || "잘했어요! 해설을 읽으며 판단 기준을 다시 정리해 보세요.") : (p.bad || "해설을 확인하고 다시 도전해 보세요.")}${p.explain ? `<div style="margin-top:8px">${p.explain}</div>` : ""}${extra}`;
+    }
+
+    /* ---------- 시작 (모든 함수·실습 유형 정의 후 실행) ---------- */
+    if (!M || !C) {
+      $("#app").innerHTML = `<main class="container page-body"><div class="empty">요청한 학습 모듈을 찾을 수 없습니다.<br><br>
+        <a class="btn btn-primary" href="ai-lab.html">AI 신뢰성 학습실</a> <a class="btn btn-ghost" href="sw-lab.html">SW 테스트 학습실</a></div></main>`;
+    } else {
+      renderModule();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쇼핑몰 장바구니 계산 검증 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/bughunt.js"></script>
+</head>
+<body data-page="lab">
+  <header id="site-header"></header>
+
+  <div class="page-head sw">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › <a href="lab.html">실습 LAB</a> › 버그 헌팅 미션</div>
+      <div class="tags"><span class="tag sw">버그 헌팅 미션</span><span class="tag">중급</span><span class="tag">⏱ 약 35분</span><span class="tag blue">결과물: 테스트 시나리오 + 버그 리포트</span></div>
+      <h1>쇼핑몰 장바구니 계산 검증</h1>
+      <ol class="stepper" id="stepper">
+        <li><span class="dot">1</span>업무 브리핑</li><li><span class="dot">2</span>테스트 수행</li>
+        <li><span class="dot">3</span>테스트 시나리오</li><li><span class="dot">4</span>버그 리포트</li><li><span class="dot">5</span>결과·피드백</li>
+      </ol>
+    </div>
+  </div>
+
+  <main class="container page-body" id="hunt"></main>
+  <footer id="site-footer"></footer>
+
+  <script>
+    const PRODUCTS = [
+      { id: "mouse", name: "무선 마우스", price: 25000 },
+      { id: "keyboard", name: "기계식 키보드", price: 45000 },
+      { id: "pad", name: "마우스 패드", price: 5000 },
+    ];
+    const won = n => n.toLocaleString("ko-KR") + "원";
+
+    /* 계산 로직: buggy=true 이면 결함이 심어진 실제 서버 동작 */
+    function calc(qtyRaw, coupon, buggy) {
+      const qty = qtyRaw.map(v => v.trim() === "" ? 0 : Number(v));
+      if (qty.some(q => !Number.isInteger(q) || q < 0)) return { error: "수량을 올바르게 입력해 주세요." };
+      if (qty.some(q => buggy ? q > 11 : q > 10)) return { error: "상품당 최대 10개까지 주문할 수 있습니다." };
+      const subtotal = qty.reduce((s, q, i) => s + q * PRODUCTS[i].price, 0);
+      if (subtotal === 0) return { error: "장바구니가 비어 있습니다. 수량을 1개 이상 입력해 주세요." };
+      let discount = 0, couponMsg = "";
+      if (coupon === "WELCOME10") {
+        if (subtotal >= 20000) discount = buggy ? Math.floor(subtotal * 0.1) : Math.min(Math.floor(subtotal * 0.1), 5000);
+        else couponMsg = "WELCOME10 쿠폰은 상품 금액 20,000원 이상일 때 사용할 수 있어요.";
+      }
+      if (coupon === "SAVE3000") {
+        if (buggy ? subtotal > 30000 : subtotal >= 30000) discount = 3000;
+        else couponMsg = "SAVE3000 쿠폰은 상품 금액 30,000원 이상일 때 사용할 수 있어요.";
+      }
+      const after = subtotal - discount;
+      const shipping = (buggy ? subtotal : after) >= 30000 ? 0 : 3000;
+      return { subtotal, discount, shipping, total: after + shipping, couponMsg };
+    }
+
+    BugHunt({
+      missionId: "m-sw-cart",
+      from: "📨 보낸 사람: 트러스트몰 결제팀 PM · 받는 사람: QA 엔지니어(나)",
+      briefTitle: "업무 요청: 장바구니 금액 계산 로직 v2.1 검증",
+      briefHtml: `<p>이번 업데이트에서 <b>쿠폰 2종과 무료 배송 기준</b>이 바뀌었습니다. 금액 계산 오류는 고객 불만과 금전 손실로 바로 이어지니,
+        요구사항 명세를 기준으로 장바구니를 꼼꼼히 검증해 주세요. 개발팀은 <b>계산 결함이 몇 개 숨어 있을 것</b>으로 보고 있습니다.</p>
+        <p style="margin:0"><b>제출물:</b> ① 테스트 시나리오 (최소 8건 권장, 쿠폰·배송비 조합 포함) ② 발견한 결함별 버그 리포트</p>`,
+      version: "v2.1 · 테스트 환경", host: "test.trustmall.example/cart",
+      env: "Chrome / 트러스트몰 장바구니 v2.1 테스트 서버",
+      reqs: [
+        { id: "REQ-01", item: "상품 금액", text: "상품 금액 = 각 상품의 (가격 × 수량)의 합" },
+        { id: "REQ-02", item: "수량", text: "상품당 0~10개. <b>11개 이상</b>이면 '최대 10개' 오류" },
+        { id: "REQ-03", item: "WELCOME10", text: "상품 금액의 10% 할인, <b>최대 5,000원</b>. 상품 금액 20,000원 이상일 때만 사용" },
+        { id: "REQ-04", item: "SAVE3000", text: "3,000원 할인. 상품 금액 <b>30,000원 이상</b>(30,000원 포함)일 때만 사용" },
+        { id: "REQ-05", item: "배송비", text: "<b>할인 적용 후</b> 금액이 30,000원 이상이면 무료, 미만이면 3,000원" },
+        { id: "REQ-06", item: "결제 금액", text: "결제 금액 = 상품 금액 − 할인 + 배송비" },
+      ],
+      tips: [
+        "<b>결정 테이블:</b> 쿠폰(없음/WELCOME10/SAVE3000) × 금액 구간(2만 미만/2만~3만/3만 이상)을 조합해 보세요.",
+        "<b>경계값:</b> 수량 10·11개, 상품 금액이 정확히 20,000원·30,000원이 되는 조합을 찾아보세요.",
+        "<b>상한선:</b> '최대 5,000원'처럼 상한이 있는 규칙은 상한을 넘는 큰 금액으로 확인하세요.",
+        "<b>계산 순서:</b> 배송비는 할인 <b>전</b> 금액이 아니라 <b>후</b> 금액 기준입니다. 할인 때문에 30,000원 아래로 내려가는 경우를 만들어 보세요.",
+      ],
+      table: { title: "테스트 시나리오 작성", short: "테스트 시나리오", idPrefix: "TS", desc: "시나리오", input: "장바구니 구성·쿠폰", descPh: "예: WELCOME10 상한 확인", inputPh: "예: 키보드 2, 쿠폰 WELCOME10" },
+      minTc: 8,
+      okLabel: "계산 완료", errLabel: "오류 표시",
+      falsePosHint: "상품 금액 합계(REQ-01)와 결제 금액 공식(REQ-06)은 정상입니다. 금액이 이상해 보이면 어느 단계(할인·배송비)에서 달라졌는지 분리해서 확인해 보세요.",
+      portfolioTitle: "트러스트몰 장바구니 금액 계산 v2.1 검증 결과 보고",
+      target: "트러스트몰 장바구니 금액 계산 로직 v2.1 — 수량, 쿠폰(WELCOME10/SAVE3000), 배송비 규칙(REQ-01~06) 검증",
+      bugs: [
+        { id: "B1", req: "REQ-02", short: "수량 상한", title: "수량 11개가 허용됨 (경계값 결함)", sev: "보통",
+          how: "상한 10개의 바로 바깥값인 <b>11</b>을 넣어야 찾을 수 있어요. 12 이상은 정상적으로 거부되기 때문에 경계값 분석이 꼭 필요한 결함입니다.",
+          model: { title: "[장바구니] 상품 수량 11개 입력 시 오류 없이 계산됨", steps: "1. 장바구니 페이지 접속\n2. 마우스 패드 수량에 11 입력\n3. 주문 금액 계산 클릭", expected: "REQ-02에 따라 '상품당 최대 10개' 오류 표시", actual: "상품 금액 55,000원으로 계산 완료" } },
+        { id: "B2", req: "REQ-03", short: "할인 상한", title: "WELCOME10 할인에 최대 5,000원 상한이 적용되지 않음", sev: "높음",
+          how: "상품 금액이 50,000원을 넘으면 10%가 5,000원을 초과합니다. 예: 키보드 2개(90,000원) → 기대 할인 5,000원, 실제 9,000원. 회사에 직접적인 금전 손실을 주는 결함이에요.",
+          model: { title: "[장바구니] WELCOME10 적용 시 할인액이 5,000원을 초과함", steps: "1. 장바구니 페이지 접속\n2. 기계식 키보드 수량 2 입력 (상품 금액 90,000원)\n3. 쿠폰 WELCOME10 선택 후 계산", expected: "REQ-03에 따라 할인 5,000원, 결제 금액 85,000원", actual: "할인 9,000원, 결제 금액 81,000원" } },
+        { id: "B3", req: "REQ-04", short: "쿠폰 최소 금액 경계", title: "상품 금액이 정확히 30,000원이면 SAVE3000이 거부됨", sev: "보통",
+          how: "조건을 <code>&gt;= 30000</code>이 아닌 <code>&gt; 30000</code>으로 구현했어요. 상품 금액이 <b>정확히 30,000원</b>(예: 무선 마우스 1 + 마우스 패드 1)일 때 SAVE3000을 적용해 봐야 찾을 수 있습니다. 경계값을 만들기 위해 상품 조합을 직접 계산하는 것도 테스트 설계 역량이에요.",
+          model: { title: "[장바구니] 상품 금액 30,000원에서 SAVE3000 쿠폰이 적용되지 않음", steps: "1. 장바구니 페이지 접속\n2. 무선 마우스 1, 마우스 패드 1 담기 (상품 금액 30,000원)\n3. 쿠폰 SAVE3000 선택 후 계산", expected: "REQ-04에 따라 30,000원 이상이므로 3,000원 할인", actual: "'SAVE3000 쿠폰은 30,000원 이상일 때 사용할 수 있어요' 안내, 할인 0원" } },
+        { id: "B4", req: "REQ-05", short: "배송비 기준", title: "배송비가 할인 전 금액 기준으로 계산됨", sev: "높음",
+          how: "할인 때문에 금액이 30,000원 아래로 내려가는 조합을 만들어야 해요. 예: 무선 마우스 1 + 마우스 패드 1(30,000원)에 WELCOME10을 적용하면 할인 후 27,000원이라 배송비 3,000원이 맞지만, 실제로는 무료로 계산됩니다. 쿠폰을 쓸수록 손해 보는 고객과 회사 양쪽에 영향을 주는 결함이에요.",
+          model: { title: "[장바구니] 할인 후 금액이 30,000원 미만인데 무료 배송이 적용됨", steps: "1. 장바구니 페이지 접속\n2. 무선 마우스 1, 마우스 패드 1 담기 (상품 금액 30,000원)\n3. 쿠폰 WELCOME10 선택 후 계산", expected: "REQ-05에 따라 할인 후 27,000원 → 배송비 3,000원, 결제 금액 30,000원", actual: "배송비 무료, 결제 금액 27,000원" } },
+      ],
+      renderApp(el, api) {
+        el.innerHTML = `
+          <div class="app-brand">TRUSTMALL</div>
+          <p class="small muted" style="margin-bottom:14px">🛒 장바구니</p>
+          ${PRODUCTS.map((p, i) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div><b style="font-size:.93rem">${p.name}</b><div class="small muted">${won(p.price)}</div></div>
+              <div style="display:flex;align-items:center;gap:6px"><label class="sr-only" for="q${i}">${p.name} 수량</label>
+                <input class="input" id="q${i}" style="width:72px;text-align:center" value="${i === 0 ? 1 : 0}" inputmode="numeric"><span class="small">개</span></div>
+            </div>`).join("")}
+          <div class="field" style="margin-top:14px"><label for="cp">쿠폰</label>
+            <select class="select" id="cp"><option value="">쿠폰 선택 안 함</option><option value="WELCOME10">WELCOME10 · 10% 할인 (최대 5,000원)</option><option value="SAVE3000">SAVE3000 · 3,000원 할인</option></select></div>
+          <button class="btn btn-primary" id="calc" style="width:100%;background:#e11d48">주문 금액 계산</button>
+          <div class="app-msg" id="cart-out"></div>`;
+        $("#calc", el).addEventListener("click", () => {
+          const raw = PRODUCTS.map((p, i) => $("#q" + i, el).value);
+          const coupon = $("#cp", el).value;
+          const got = calc(raw, coupon, true), spec = calc(raw, coupon, false);
+          // 재현된 결함 판별 (학습자에게는 표시하지 않음)
+          const trig = [];
+          if (!!got.error !== !!spec.error) trig.push("B1");
+          if (!got.error && !spec.error) {
+            if (coupon === "WELCOME10" && got.discount !== spec.discount) trig.push("B2");
+            if (coupon === "SAVE3000" && got.discount !== spec.discount) trig.push("B3");
+            const after = spec.subtotal - spec.discount;
+            if ((spec.subtotal >= 30000) !== (after >= 30000)) trig.push("B4");
+          }
+          const out = $("#cart-out", el);
+          const input = PRODUCTS.map((p, i) => `${p.name} ${raw[i] || 0}`).join(", ") + ` / 쿠폰: ${coupon || "없음"}`;
+          if (got.error) {
+            out.className = "app-msg show error"; out.textContent = got.error;
+            api.record(input, "오류: " + got.error, false, trig);
+          } else {
+            out.className = "app-msg show success";
+            out.innerHTML = `상품 금액 <b>${won(got.subtotal)}</b><br>할인 −${won(got.discount)}<br>배송비 ${got.shipping ? won(got.shipping) : "무료"}<br>
+              <b style="font-size:1.05rem">결제 금액 ${won(got.total)}</b>${got.couponMsg ? `<br><span class="small">ℹ️ ${got.couponMsg}</span>` : ""}`;
+            api.record(input, `상품 ${won(got.subtotal)} / 할인 ${won(got.discount)} / 배송비 ${won(got.shipping)} / 결제 ${won(got.total)}${got.couponMsg ? " (" + got.couponMsg + ")" : ""}`, true, trig);
+          }
+        });
+      },
+    });
+  </script>
+</body>
+</html>

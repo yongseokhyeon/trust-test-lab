@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입 기능 배포 전 테스트 — TRUST&amp;TEST LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+</head>
+<body data-page="lab">
+  <header id="site-header"></header>
+
+  <div class="page-head sw">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">홈</a> › <a href="lab.html">실습 LAB</a> › 버그 헌팅 미션</div>
+      <div class="tags"><span class="tag sw">버그 헌팅 미션</span><span class="tag">입문</span><span class="tag">⏱ 약 35분</span><span class="tag blue">결과물: 테스트 케이스 + 버그 리포트</span></div>
+      <h1>회원가입 기능 배포 전 테스트</h1>
+      <ol class="stepper" id="stepper">
+        <li data-s="1"><span class="dot">1</span>업무 브리핑</li>
+        <li data-s="2"><span class="dot">2</span>테스트 수행</li>
+        <li data-s="3"><span class="dot">3</span>테스트 케이스</li>
+        <li data-s="4"><span class="dot">4</span>버그 리포트</li>
+        <li data-s="5"><span class="dot">5</span>결과·피드백</li>
+      </ol>
+    </div>
+  </div>
+
+  <main class="container page-body">
+    <div class="brief sw">
+      <div class="from">📨 보낸 사람: 트러스트몰 개발팀 리드 · 받는 사람: QA 엔지니어(나)</div>
+      <h2>업무 요청: 회원가입 기능 v1.0 배포 전 테스트</h2>
+      <p>금요일 배포 예정인 <b>트러스트몰 회원가입 기능</b>의 테스트를 부탁드립니다. 아래 <b>요구사항 명세</b>를 기준으로 테스트 서버의 회원가입 화면을 직접 테스트해 주세요.
+        개발팀은 <b>요구사항과 다르게 동작하는 결함이 몇 개 있을 것</b>으로 보고 있습니다.</p>
+      <p style="margin:0"><b>제출물:</b> ① 테스트 케이스 (최소 8건 권장) ② 발견한 결함별 버그 리포트</p>
+    </div>
+
+    <div class="mission-grid wide-left">
+      <!-- 요구사항 -->
+      <div>
+        <div class="block-title" style="margin-top:0"><h2>📋 요구사항 명세</h2></div>
+        <div class="table-wrap" style="margin-top:0">
+          <table>
+            <thead><tr><th>ID</th><th>항목</th><th>요구사항</th></tr></thead>
+            <tbody>
+              <tr><td><b>REQ-01</b></td><td>아이디</td><td>영문 <b>소문자</b>와 숫자만 사용, 4~12자</td></tr>
+              <tr><td><b>REQ-02</b></td><td>비밀번호</td><td>8자 이상, <b>숫자 1개 이상</b> 포함</td></tr>
+              <tr><td><b>REQ-03</b></td><td>비밀번호 확인</td><td>비밀번호와 정확히 일치해야 함</td></tr>
+              <tr><td><b>REQ-04</b></td><td>이메일</td><td>올바른 형식 (예: name@domain.com)</td></tr>
+              <tr><td><b>REQ-05</b></td><td>나이</td><td>숫자만 입력, <b>만 14세 이상</b>(14세 포함)만 가입 가능</td></tr>
+              <tr><td><b>REQ-06</b></td><td>약관 동의</td><td><b>[필수] 이용약관</b>에 동의해야 가입 가능, [선택] 마케팅 동의는 선택</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <b>💡 테스트 팁</b>
+          <ul style="margin:0">
+            <li><b>동등 분할:</b> 허용되는 값과 <b>허용되면 안 되는 값</b>을 모두 넣어 보세요.</li>
+            <li><b>경계값 분석:</b> 4자/12자, 13세/14세처럼 경계 바로 위아래를 확인하세요.</li>
+            <li>오류가 <b>나야 하는데 성공하는 경우</b>도 결함입니다.</li>
+            <li>테스트 로그의 <b>"케이스로 추가"</b>를 누르면 입력값과 실제 결과가 테스트 케이스 표에 자동으로 채워집니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 가상 앱 -->
+      <div>
+        <div class="block-title" style="margin-top:0"><h2>📱 테스트 서버</h2><span class="tag">v1.0 · 테스트 환경</span></div>
+        <div class="device">
+          <div class="device-bar"><span>test.trustmall.example</span><span>🔒 테스트 서버</span></div>
+          <div class="device-body">
+            <div class="app-brand">TRUSTMALL</div>
+            <p class="small muted" style="margin-bottom:16px">회원가입하고 첫 구매 쿠폰을 받으세요!</p>
+            <form id="app-form" autocomplete="off" novalidate>
+              <div class="field"><label for="f-id">아이디</label><input class="input" id="f-id" placeholder="영문 소문자+숫자 4~12자"></div>
+              <div class="field-row">
+                <div class="field"><label for="f-pw">비밀번호</label><input class="input" id="f-pw" type="text" placeholder="8자 이상, 숫자 포함"></div>
+                <div class="field"><label for="f-pw2">비밀번호 확인</label><input class="input" id="f-pw2" type="text"></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label for="f-email">이메일</label><input class="input" id="f-email" placeholder="name@domain.com"></div>
+                <div class="field"><label for="f-age">나이</label><input class="input" id="f-age" inputmode="numeric"></div>
+              </div>
+              <label class="app-check"><input type="checkbox" id="f-terms"> [필수] 이용약관에 동의합니다</label>
+              <label class="app-check"><input type="checkbox" id="f-mkt"> [선택] 마케팅 정보 수신에 동의합니다</label>
+              <button class="btn btn-primary" style="width:100%;background:#e11d48;margin-top:8px" type="submit">가입하기</button>
+              <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" type="button" id="app-clear">입력 초기화</button>
+            </form>
+            <div class="app-msg" id="app-msg" role="status"></div>
+          </div>
+        </div>
+        <p class="small muted" style="text-align:center;margin-top:10px">ℹ️ 테스트 편의를 위해 비밀번호가 보이도록 설정되어 있습니다.</p>
+
+        <div class="practice" style="margin-top:18px">
+          <div class="practice-head"><h3>🧾 테스트 실행 로그</h3><button class="btn btn-ghost btn-sm" id="log-clear">로그 지우기</button></div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 테스트 케이스 -->
+    <div class="block-title">
+      <h2>STEP 3 · 테스트 케이스 작성 <span class="tag sw" id="tc-count" style="vertical-align:middle">0건</span></h2>
+      <button class="btn btn-outline btn-sm" id="tc-add">+ 빈 행 추가</button>
+    </div>
+    <div class="table-wrap edit-table" style="margin-top:0">
+      <table>
+        <thead><tr><th>ID</th><th>요구사항</th><th>테스트 내용</th><th>입력값</th><th>기대 결과</th><th>실제 결과</th><th>판정</th><th></th></tr></thead>
+        <tbody id="tc-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 버그 리포트 -->
+    <div class="block-title"><h2>STEP 4 · 버그 리포트 작성 <span class="tag sw" id="bug-count" style="vertical-align:middle">0건</span></h2></div>
+    <div class="grid grid-2" style="align-items:start">
+      <form class="practice" id="bug-form" style="margin:0" novalidate>
+        <div class="practice-head"><h3 id="bug-form-title">✍️ 새 버그 리포트</h3></div>
+        <div class="field"><label for="b-title">제목</label><input class="input" id="b-title" placeholder="[화면] 무엇을 하면 어떤 문제가 생기는지 한 줄로"></div>
+        <div class="field-row three">
+          <div class="field"><label for="b-req">관련 요구사항</label><select class="select" id="b-req"><option value="">선택</option><option>REQ-01</option><option>REQ-02</option><option>REQ-03</option><option>REQ-04</option><option>REQ-05</option><option>REQ-06</option></select></div>
+          <div class="field"><label for="b-sev">심각도</label><select class="select" id="b-sev"><option value="">선택</option><option>치명적</option><option>높음</option><option>보통</option><option>낮음</option></select></div>
+          <div class="field"><label for="b-pri">우선순위</label><select class="select" id="b-pri"><option>높음</option><option selected>보통</option><option>낮음</option></select></div>
+        </div>
+        <div class="field"><label for="b-env">환경</label><input class="input" id="b-env" value="Chrome / 트러스트몰 v1.0 테스트 서버"></div>
+        <div class="field"><label for="b-steps">재현 절차</label><textarea class="textarea" id="b-steps" placeholder="1. 회원가입 페이지 접속&#10;2. 아이디에 ... 입력&#10;3. 가입하기 클릭"></textarea></div>
+        <div class="field-row">
+          <div class="field"><label for="b-exp">기대 결과</label><textarea class="textarea" id="b-exp" placeholder="요구사항에 따라 원래 일어나야 할 일"></textarea></div>
+          <div class="field"><label for="b-act">실제 결과</label><textarea class="textarea" id="b-act" placeholder="실제로 일어난 일 (메시지 원문)"></textarea></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="submit" id="bug-save">버그 리포트 등록</button>
+          <button class="btn btn-ghost hidden" type="button" id="bug-cancel">수정 취소</button>
+        </div>
+      </form>
+      <div id="bug-list"></div>
+    </div>
+
+    <div class="complete-box no-print" style="margin-top:36px">
+      <div><b>테스트를 마쳤나요?</b><div class="small muted">제출하면 숨겨진 결함과 비교해 채점합니다. 작성 중인 내용은 자동 저장됩니다.</div></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="reset">처음부터 다시</button>
+        <button class="btn btn-primary btn-lg" id="submit">결과물 제출하고 채점받기</button>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div id="result" class="hidden">
+      <div class="block-title"><h2>STEP 5 · 채점 결과와 피드백</h2></div>
+      <div class="score-hero" id="score-hero"></div>
+      <div id="notes"></div>
+      <h3 style="margin-top:28px">숨겨진 결함 5개</h3>
+      <div id="findings"></div>
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn btn-primary btn-lg" id="save-pf">📁 포트폴리오에 저장</button>
+        <a class="btn btn-ghost btn-lg" href="mypage.html#results">마이페이지에서 결과 보기</a>
+        <button class="btn btn-ghost btn-lg" id="retry">다시 도전</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const MISSION_ID = "m-sw-signup";
+    const DRAFT_KEY = "draft-" + MISSION_ID;
+    Progress.setLast("mission-signup.html", "실습 LAB · 회원가입 기능 배포 전 테스트");
+
+    let draft = Drafts.get(DRAFT_KEY, null) || { tcs: [], bugs: [], log: [], triggered: [], seq: { tc: 0, bug: 0 }, submitted: null };
+    const save = () => Drafts.set(DRAFT_KEY, draft);
+    const locked = () => !!draft.submitted;
+
+    /* =========================================================
+       가상 앱 — 결함이 심어진 검증 로직 (학습자에게는 보이지 않음)
+       ========================================================= */
+    const BUGS = [
+      { id: "B1", req: "REQ-01", title: "아이디에 영문 대문자가 허용됨", sev: "보통",
+        how: "동등 분할로 '허용되면 안 되는 문자' 그룹(대문자, 특수문자, 한글)을 테스트하면 발견할 수 있어요. 예: <code>TestUser1</code>",
+        model: { title: "[회원가입] 아이디에 영문 대문자를 입력해도 가입이 완료됨", steps: "1. 회원가입 페이지 접속\n2. 아이디에 TestUser1 입력, 나머지 항목은 유효한 값 입력\n3. 가입하기 클릭", expected: "REQ-01에 따라 '영문 소문자와 숫자만 사용 가능' 오류 표시", actual: "가입 완료 메시지 표시" } },
+      { id: "B2", req: "REQ-02", title: "숫자가 없는 비밀번호가 허용됨", sev: "높음",
+        how: "길이 조건만 확인하지 말고 '숫자 포함' 조건을 깨는 값(예: <code>abcdefgh</code>)도 넣어 보세요. 보안과 관련되어 심각도가 높습니다.",
+        model: { title: "[회원가입] 숫자가 없는 비밀번호(abcdefgh)로 가입이 완료됨", steps: "1. 회원가입 페이지 접속\n2. 비밀번호/비밀번호 확인에 abcdefgh 입력, 나머지는 유효한 값\n3. 가입하기 클릭", expected: "REQ-02에 따라 '숫자를 1개 이상 포함' 오류 표시", actual: "가입 완료 메시지 표시" } },
+      { id: "B3", req: "REQ-04", title: "형식이 잘못된 이메일이 허용됨", sev: "보통",
+        how: "'@'만 있으면 통과하는 구현이에요. <code>abc@</code>, <code>abc@mail</code>처럼 도메인이 불완전한 값을 테스트해 보세요.",
+        model: { title: "[회원가입] 도메인이 없는 이메일(abc@)로 가입이 완료됨", steps: "1. 회원가입 페이지 접속\n2. 이메일에 abc@ 입력, 나머지는 유효한 값\n3. 가입하기 클릭", expected: "REQ-04에 따라 '올바른 이메일 형식이 아닙니다' 오류 표시", actual: "가입 완료 메시지 표시" } },
+      { id: "B4", req: "REQ-05", title: "만 14세가 가입 거부됨 (경계값 결함)", sev: "높음",
+        how: "전형적인 경계값 결함입니다. <code>age &gt;= 14</code>를 <code>age &gt; 14</code>로 구현했어요. 13, <b>14</b>, 15를 모두 넣어 봐야 찾을 수 있습니다.",
+        model: { title: "[회원가입] 나이에 14를 입력하면 가입이 거부됨", steps: "1. 회원가입 페이지 접속\n2. 나이에 14 입력, 나머지는 유효한 값\n3. 가입하기 클릭", expected: "REQ-05에 따라 만 14세는 가입 가능 → 가입 완료", actual: "'만 14세 이상만 가입할 수 있습니다' 오류 표시" } },
+      { id: "B5", req: "REQ-06", title: "필수 약관에 동의하지 않아도 가입됨", sev: "높음",
+        how: "체크박스를 '선택 안 함' 상태로 두는 것도 중요한 테스트 케이스입니다. 법적 문제로 이어질 수 있어 심각도가 높아요.",
+        model: { title: "[회원가입] 필수 이용약관 미동의 상태에서도 가입이 완료됨", steps: "1. 회원가입 페이지 접속\n2. 모든 입력값을 유효하게 입력하고 [필수] 이용약관 체크 해제\n3. 가입하기 클릭", expected: "REQ-06에 따라 '필수 약관에 동의해 주세요' 오류 표시", actual: "가입 완료 메시지 표시" } },
+    ];
+
+    function validate(v, buggy) {
+      const e = {};
+      // REQ-01
+      if (!v.id) e.id = "아이디를 입력해 주세요.";
+      else if (!(buggy ? /^[A-Za-z0-9]{4,12}$/ : /^[a-z0-9]{4,12}$/).test(v.id)) e.id = "아이디는 영문 소문자와 숫자 4~12자로 입력해 주세요.";
+      // REQ-02
+      if (!v.pw) e.pw = "비밀번호를 입력해 주세요.";
+      else if (v.pw.length < 8) e.pw = "비밀번호는 8자 이상이어야 합니다.";
+      else if (!buggy && !/\d/.test(v.pw)) e.pw = "비밀번호에 숫자를 1개 이상 포함해 주세요.";
+      // REQ-03 (정상 구현)
+      if (v.pw && v.pw2 !== v.pw) e.pw2 = "비밀번호가 일치하지 않습니다.";
+      // REQ-04
+      if (!v.email) e.email = "이메일을 입력해 주세요.";
+      else if (!(buggy ? v.email.includes("@") : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email))) e.email = "올바른 이메일 형식이 아닙니다.";
+      // REQ-05
+      if (v.age === "") e.age = "나이를 입력해 주세요.";
+      else if (!/^\d+$/.test(v.age)) e.age = "나이는 숫자로만 입력해 주세요.";
+      else if (buggy ? !(+v.age > 14) : !(+v.age >= 14)) e.age = "만 14세 이상만 가입할 수 있습니다.";
+      // REQ-06
+      if (!buggy && !v.terms) e.terms = "[필수] 이용약관에 동의해 주세요.";
+      return e;
+    }
+    const FIELD_BUG = { id: "B1", pw: "B2", email: "B3", age: "B4", terms: "B5" };
+
+    function readForm() {
+      return {
+        id: $("#f-id").value.trim(), pw: $("#f-pw").value, pw2: $("#f-pw2").value,
+        email: $("#f-email").value.trim(), age: $("#f-age").value.trim(),
+        terms: $("#f-terms").checked, mkt: $("#f-mkt").checked,
+      };
+    }
+    function summarize(v) {
+      return `아이디: ${v.id || "(빈칸)"} / 비밀번호: ${v.pw || "(빈칸)"} / 확인: ${v.pw2 || "(빈칸)"} / 이메일: ${v.email || "(빈칸)"} / 나이: ${v.age || "(빈칸)"} / 필수약관: ${v.terms ? "동의" : "미동의"}`;
+    }
+
+    $("#app-form").addEventListener("submit", ev => {
+      ev.preventDefault();
+      const v = readForm();
+      const actual = validate(v, true), spec = validate(v, false);
+      // 결함 재현 여부 기록 (학습자에게는 표시하지 않음)
+      Object.entries(FIELD_BUG).forEach(([f, b]) => {
+        if (!!actual[f] !== !!spec[f] && !draft.triggered.includes(b)) draft.triggered.push(b);
+      });
+      const errs = Object.values(actual);
+      const msg = $("#app-msg");
+      let resultText;
+      if (errs.length) {
+        msg.className = "app-msg show error";
+        msg.innerHTML = `<b>가입할 수 없습니다.</b><ul>${errs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+        resultText = "오류: " + errs.join(" ");
+      } else {
+        msg.className = "app-msg show success";
+        msg.innerHTML = `🎉 <b>${esc(v.id)}</b>님, 트러스트몰 회원가입이 완료되었습니다!`;
+        resultText = "가입 완료 메시지 표시";
+      }
+      draft.log.unshift({ at: Date.now(), input: summarize(v), result: resultText, ok: !errs.length });
+      draft.log = draft.log.slice(0, 40);
+      save(); renderLog(); updateStepper();
+    });
+    $("#app-clear").addEventListener("click", () => { $("#app-form").reset(); $("#app-msg").className = "app-msg"; });
+
+    function renderLog() {
+      $("#log").innerHTML = draft.log.length ? draft.log.map((l, i) => `
+        <div class="log-item">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <span class="${l.ok ? "r-ok" : "r-err"}">${l.ok ? "✔ 가입 성공" : "✖ 가입 실패"}</span>
+            ${locked() ? "" : `<button class="btn btn-ghost btn-sm" data-log="${i}">케이스로 추가</button>`}
+          </div>
+          <span class="muted">${esc(l.input)}</span>
+          <span>${esc(l.result)}</span>
+        </div>`).join("")
+        : '<p class="muted small" style="margin:0;padding:8px">아직 실행한 테스트가 없습니다. 위의 회원가입 화면에서 값을 입력하고 [가입하기]를 눌러 보세요.</p>';
+    }
+    $("#log").addEventListener("click", e => {
+      const b = e.target.closest("[data-log]");
+      if (!b) return;
+      const l = draft.log[+b.dataset.log];
+      addTc({ input: l.input, actual: l.result });
+      toast("테스트 케이스 표에 추가했어요. 요구사항, 내용, 기대 결과, 판정을 채워 주세요.");
+    });
+    $("#log-clear").addEventListener("click", () => { draft.log = []; save(); renderLog(); });
+
+    /* =========================================================
+       테스트 케이스 표
+       ========================================================= */
+    function addTc(pre = {}) {
+      draft.seq.tc += 1;
+      draft.tcs.push(Object.assign({ id: "TC-" + String(draft.seq.tc).padStart(2, "0"), req: "", desc: "", input: "", expected: "", actual: "", verdict: "" }, pre));
+      save(); renderTcs(); updateStepper();
+    }
+    function renderTcs() {
+      const dis = locked() ? "disabled" : "";
+      $("#tc-count").textContent = draft.tcs.length + "건";
+      $("#tc-body").innerHTML = draft.tcs.length ? draft.tcs.map((t, i) => `
+        <tr data-i="${i}">
+          <td>${t.id}</td>
+          <td><select class="select" data-f="req" ${dis}><option value="">-</option>${["REQ-01", "REQ-02", "REQ-03", "REQ-04", "REQ-05", "REQ-06"].map(r => `<option ${t.req === r ? "selected" : ""}>${r}</option>`).join("")}</select></td>
+          <td><input class="input" data-f="desc" value="${esc(t.desc)}" placeholder="예: 14세 경계값" ${dis}></td>
+          <td><input class="input" data-f="input" value="${esc(t.input)}" placeholder="예: 나이=14" ${dis}></td>
+          <td><input class="input" data-f="expected" value="${esc(t.expected)}" placeholder="예: 가입 성공" ${dis}></td>
+          <td><input class="input" data-f="actual" value="${esc(t.actual)}" placeholder="예: 오류 표시" ${dis}></td>
+          <td><select class="select" data-f="verdict" ${dis}><option value="">-</option><option value="pass" ${t.verdict === "pass" ? "selected" : ""}>통과</option><option value="fail" ${t.verdict === "fail" ? "selected" : ""}>실패</option></select></td>
+          <td>${locked() ? "" : `<button class="icon-del" data-del="${i}" aria-label="${t.id} 삭제">✕</button>`}</td>
+        </tr>`).join("")
+        : '<tr><td colspan="8" class="muted" style="text-align:center;padding:22px">테스트 로그에서 "케이스로 추가"를 누르거나 빈 행을 추가하세요.</td></tr>';
+    }
+    $("#tc-add").addEventListener("click", () => { if (!locked()) addTc(); });
+    $("#tc-body").addEventListener("input", e => {
+      const row = e.target.closest("tr"), f = e.target.dataset.f;
+      if (!row || !f) return;
+      draft.tcs[+row.dataset.i][f] = e.target.value;
+      save(); updateStepper();
+    });
+    $("#tc-body").addEventListener("click", e => {
+      const b = e.target.closest("[data-del]");
+      if (!b) return;
+      draft.tcs.splice(+b.dataset.del, 1);
+      save(); renderTcs(); updateStepper();
+    });
+
+    /* =========================================================
+       버그 리포트
+       ========================================================= */
+    let editing = null;
+    const BF = { title: "#b-title", req: "#b-req", severity: "#b-sev", priority: "#b-pri", env: "#b-env", steps: "#b-steps", expected: "#b-exp", actual: "#b-act" };
+    function readBug() { const o = {}; Object.entries(BF).forEach(([k, s]) => o[k] = $(s).value.trim()); return o; }
+    function fillBug(b) { Object.entries(BF).forEach(([k, s]) => $(s).value = b[k] ?? ""); }
+    function resetBugForm() {
+      editing = null;
+      fillBug({ priority: "보통", env: "Chrome / 트러스트몰 v1.0 테스트 서버" });
+      $("#bug-form-title").textContent = "✍️ 새 버그 리포트";
+      $("#bug-save").textContent = "버그 리포트 등록";
+      $("#bug-cancel").classList.add("hidden");
+    }
+    $("#bug-form").addEventListener("submit", e => {
+      e.preventDefault();
+      if (locked()) return;
+      const b = readBug();
+      if (!b.title || !b.req || !b.severity) { toast("제목, 관련 요구사항, 심각도는 꼭 입력해 주세요."); return; }
+      if (editing !== null) {
+        Object.assign(draft.bugs[editing], b);
+        toast("버그 리포트를 수정했어요.");
+      } else {
+        draft.seq.bug += 1;
+        draft.bugs.push(Object.assign({ id: "BUG-" + String(draft.seq.bug).padStart(3, "0") }, b));
+        toast("버그 리포트를 등록했어요.");
+      }
+      save(); resetBugForm(); renderBugs(); updateStepper();
+    });
+    $("#bug-cancel").addEventListener("click", resetBugForm);
+    function renderBugs() {
+      $("#bug-count").textContent = draft.bugs.length + "건";
+      $("#bug-list").innerHTML = draft.bugs.length ? draft.bugs.map((b, i) => bugReportCard(b, locked() ? "" : `
+          <div class="btn-row" style="flex-wrap:nowrap">
+            <button class="btn btn-ghost btn-sm" data-edit="${i}">수정</button>
+            <button class="btn btn-danger btn-sm" data-delbug="${i}">삭제</button>
+          </div>`)).join("")
+        : '<div class="empty">등록한 버그 리포트가 없습니다.<br><span class="small">요구사항과 다르게 동작하는 부분을 찾으면 왼쪽 양식으로 등록하세요.</span></div>';
+    }
+    $("#bug-list").addEventListener("click", e => {
+      const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-delbug]");
+      if (ed) {
+        editing = +ed.dataset.edit;
+        fillBug(draft.bugs[editing]);
+        $("#bug-form-title").textContent = `✏️ ${draft.bugs[editing].id} 수정`;
+        $("#bug-save").textContent = "수정 저장";
+        $("#bug-cancel").classList.remove("hidden");
+        $("#bug-form").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (del && confirm("이 버그 리포트를 삭제할까요?")) {
+        draft.bugs.splice(+del.dataset.delbug, 1);
+        if (editing !== null) resetBugForm();
+        save(); renderBugs(); updateStepper();
+      }
+    });
+
+    /* =========================================================
+       단계 표시 & 채점
+       ========================================================= */
+    function updateStepper() {
+      const st = [true, draft.log.length > 0, draft.tcs.length > 0, draft.bugs.length > 0, locked()];
+      let onSet = false;
+      $$("#stepper li").forEach((li, i) => {
+        li.className = st[i] ? "done" : (onSet ? "" : "on");
+        if (!st[i]) onSet = true;
+      });
+    }
+
+    function grade() {
+      const found = BUGS.map(b => ({ ...b, found: draft.bugs.some(r => r.req === b.req), reproduced: draft.triggered.includes(b.id) }));
+      const foundCount = found.filter(f => f.found).length;
+      const findPts = foundCount * 12;
+      const quality = draft.bugs.length ? draft.bugs.reduce((s, b) => s +
+        [b.title.length >= 8, b.steps.length >= 10, b.expected.length >= 4, b.actual.length >= 4, !!b.severity].filter(Boolean).length / 5, 0) / draft.bugs.length : 0;
+      const qualityPts = Math.round(quality * 25);
+      const meaningful = draft.tcs.filter(t => t.req && (t.desc || t.input));
+      const covered = new Set(meaningful.map(t => t.req)).size;
+      const tcPts = Math.round(covered / 6 * 10 + Math.min(meaningful.length, 10) / 10 * 5);
+      const falsePos = draft.bugs.filter(b => b.req === "REQ-03");
+      const dupReqs = Object.entries(draft.bugs.reduce((m, b) => (m[b.req] = (m[b.req] || 0) + 1, m), {})).filter(([, n]) => n > 1).map(([r]) => r);
+      return { total: findPts + qualityPts + tcPts, found, foundCount, findPts, qualityPts, tcPts, covered, tcN: meaningful.length, falsePos, dupReqs };
+    }
+
+    function showResult(r, scroll) {
+      [renderTcs, renderBugs, renderLog].forEach(f => f());
+      $$("#app-form input, #app-form button, #bug-form input, #bug-form select, #bug-form textarea, #bug-form button, #tc-add, #submit, #log-clear").forEach(x => x.disabled = true);
+      $("#result").classList.remove("hidden");
+      $("#score-hero").innerHTML = `
+        <div class="score-ring" style="--p:${r.total}"><div><div><b>${r.total}</b><span>/ 100점</span></div></div></div>
+        <div class="score-breakdown">
+          <div class="row"><span>결함 발견</span><div class="progress sw"><i style="width:${r.findPts / 60 * 100}%"></i></div><b>${r.findPts}/60</b></div>
+          <div class="row"><span>리포트 품질</span><div class="progress sw"><i style="width:${r.qualityPts / 25 * 100}%"></i></div><b>${r.qualityPts}/25</b></div>
+          <div class="row"><span>테스트 케이스</span><div class="progress sw"><i style="width:${r.tcPts / 15 * 100}%"></i></div><b>${r.tcPts}/15</b></div>
+          <div class="small muted">결함 <b>${r.foundCount}/5</b>개 보고 · 테스트 케이스 ${r.tcN}건 (요구사항 ${r.covered}/6개 커버)</div>
+        </div>`;
+      const notes = [];
+      if (r.falsePos.length) notes.push(`<div class="callout warn"><b>⚠️ 오탐(False Positive) ${r.falsePos.length}건</b>REQ-03(비밀번호 확인)은 요구사항대로 정상 동작합니다. 결함이 아닌 것을 보고하면 개발팀의 시간을 낭비하게 되므로, 재현 절차를 다시 확인하는 습관이 중요해요.</div>`);
+      if (r.dupReqs.length) notes.push(`<div class="callout"><b>ℹ️ 같은 요구사항에 리포트가 여러 건 (${r.dupReqs.join(", ")})</b>서로 다른 결함이라면 괜찮지만, 같은 결함을 중복 보고하지 않았는지 확인해 보세요.</div>`);
+      if (r.qualityPts < 20 && draft.bugs.length) notes.push(`<div class="callout"><b>✍️ 리포트 품질 높이기</b>제목은 '[화면] 조건 → 문제' 형식으로, 재현 절차는 번호를 붙여 단계별로, 기대 결과에는 요구사항 번호를 함께 적어 보세요.</div>`);
+      $("#notes").innerHTML = notes.join("");
+      $("#findings").innerHTML = r.found.map(f => `
+        <div class="finding ${f.found ? "found" : "missed"}">
+          <h4>${f.found ? "✅" : "❌"} ${f.req} · ${f.title}
+            <span class="tag ${f.found ? "ok" : "bad"}">${f.found ? "보고함" : "놓침"}</span>
+            <span class="tag">${f.reproduced ? "🔁 앱에서 재현함" : "앱에서 재현 안 함"}</span>
+            <span class="tag">권장 심각도: ${f.sev}</span></h4>
+          <p>${f.how}</p>
+          <details><summary>모범 버그 리포트 보기</summary>
+            <div class="report-card" style="margin-top:10px"><h4>${f.model.title}</h4>
+              <dl><dt>재현 절차</dt><dd>${f.model.steps}</dd><dt>기대 결과</dt><dd>${f.model.expected}</dd><dt>실제 결과</dt><dd>${f.model.actual}</dd><dt>심각도</dt><dd>${f.sev}</dd></dl>
+            </div>
+          </details>
+        </div>`).join("");
+      updateStepper();
+      if (scroll) $("#result").scrollIntoView({ behavior: "smooth" });
+    }
+
+    $("#submit").addEventListener("click", () => {
+      if (!draft.bugs.length && !draft.tcs.length) { toast("테스트 케이스나 버그 리포트를 하나 이상 작성해 주세요."); return; }
+      if (!confirm("제출하면 결과물을 더 이상 수정할 수 없어요. 제출할까요?")) return;
+      const r = grade();
+      draft.submitted = { at: Date.now(), score: r.total };
+      save();
+      Progress.recordMission(MISSION_ID, r.total, {
+        found: r.foundCount, total: 5, missed: r.found.filter(f => !f.found).map(f => f.req),
+        qualityPts: r.qualityPts, tcPts: r.tcPts, falsePos: r.falsePos.length,
+      });
+      showResult(r, true);
+      toast(`채점 완료! ${r.total}점`);
+    });
+
+    $("#save-pf").addEventListener("click", () => {
+      const r = grade();
+      Portfolio.add({
+        type: "bug-report", typeName: "테스트 케이스 + 버그 리포트", track: "sw", missionId: MISSION_ID,
+        title: "트러스트몰 회원가입 기능 v1.0 테스트 결과 보고", score: r.total,
+        summary: `테스트 케이스 ${draft.tcs.length}건 · 버그 리포트 ${draft.bugs.length}건 · 결함 ${r.foundCount}/5 발견`,
+        content: {
+          target: "트러스트몰 회원가입 기능 v1.0 (테스트 서버) — 요구사항 REQ-01~06 기준 기능 테스트",
+          testCases: draft.tcs, bugs: draft.bugs,
+        },
+      });
+      $("#save-pf").textContent = "✓ 포트폴리오에 저장됨";
+      $("#save-pf").disabled = true;
+      toast("포트폴리오에 저장했어요. 마이페이지에서 확인할 수 있습니다.");
+    });
+
+    function restart() {
+      if (!confirm("작성한 내용을 지우고 처음부터 다시 할까요? (포트폴리오에 저장한 결과물은 유지됩니다)")) return;
+      Drafts.clear(DRAFT_KEY);
+      location.reload();
+    }
+    $("#reset").addEventListener("click", restart);
+    $("#retry").addEventListener("click", restart);
+
+    /* ---------- 초기화 ---------- */
+    renderLog(); renderTcs(); renderBugs(); resetBugForm(); updateStepper();
+    if (locked()) showResult(grade(), false);
+  </script>
+</body>
+</html>
