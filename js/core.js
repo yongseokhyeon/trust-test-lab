@@ -216,8 +216,26 @@ function renderQuiz(el, moduleId, questions) {
   };
 }
 
-/* ---------- 모듈 완료 박스 ---------- */
-function bindComplete(btn, moduleId) {
+/* ---------- 모듈 완료 박스 ----------
+   required: 완료 전에 끝내야 할 미니 실습 목록 [{ key, name, anchor }]
+   미니 실습(채점까지)과 확인 퀴즈(모든 문항 응답)를 모두 마쳐야 완료할 수 있습니다. */
+function bindComplete(btn, moduleId, required = []) {
+  const box = btn.closest(".complete-box");
+  let msg = box && box.querySelector(".complete-msg");
+  if (box && !msg) {
+    msg = document.createElement("div");
+    msg.className = "feedback complete-msg";
+    msg.style.flexBasis = "100%";
+    msg.setAttribute("role", "alert");
+    box.appendChild(msg);
+  }
+  const missing = () => {
+    const st = Progress.module(moduleId);
+    const list = required.filter(p => !(st.practice && st.practice[p.key]))
+      .map(p => `<a href="#${p.anchor}">미니 실습 · ${p.name}</a>`);
+    if (!st.quiz) list.push('<a href="#quiz">확인 퀴즈</a>');
+    return list;
+  };
   const sync = () => {
     const done = !!Progress.module(moduleId).done;
     btn.textContent = done ? "✓ 학습 완료 (취소하기)" : "학습 완료로 표시";
@@ -225,6 +243,18 @@ function bindComplete(btn, moduleId) {
   };
   btn.addEventListener("click", () => {
     const done = !Progress.module(moduleId).done;
+    if (done) {
+      const left = missing();
+      if (left.length) {
+        if (msg) {
+          msg.className = "feedback complete-msg show bad";
+          msg.innerHTML = `<b>아직 풀지 않은 문제가 있어요.</b> 아래 항목을 모두 푼 뒤에 학습 완료를 눌러 주세요.<br>${left.map(l => "· " + l).join("<br>")}`;
+        }
+        toast("미니 실습과 퀴즈를 모두 풀어야 학습 완료할 수 있어요.");
+        return;
+      }
+    }
+    if (msg) msg.className = "feedback complete-msg";
     Progress.setModuleDone(moduleId, done);
     sync();
     toast(done ? "학습 완료! 진도가 마이페이지에 반영되었습니다." : "완료 표시를 취소했습니다.");

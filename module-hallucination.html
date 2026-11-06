@@ -213,7 +213,7 @@
         ex: "근거 기반 생성(RAG)은 검색한 근거 문서를 바탕으로 답하게 해 환각을 줄이는 대표적 방법입니다. 그래도 완벽하지 않으므로 테스트는 계속 필요합니다." },
     ]);
 
-    bindComplete($("#done-btn"), MODULE_ID);
+    bindComplete($("#done-btn"), MODULE_ID, [{ key: "grounding", name: "근거 문서와 대조해 환각 찾기", anchor: "practice" }]);
   </script>
 </body>
 </html>

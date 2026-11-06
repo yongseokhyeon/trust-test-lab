@@ -242,7 +242,10 @@
         ex: "로고 오탈자처럼 심각도는 낮지만 우선순위는 높은 경우가 있습니다." },
     ]);
 
-    bindComplete($("#done-btn"), MODULE_ID);
+    bindComplete($("#done-btn"), MODULE_ID, [
+      { key: "diagnose", name: "나쁜 버그 리포트 진단하기", anchor: "practice1" },
+      { key: "severity", name: "심각도 판정하기", anchor: "practice2" },
+    ]);
   </script>
 </body>
 </html>

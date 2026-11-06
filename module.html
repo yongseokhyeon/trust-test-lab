@@ -74,7 +74,10 @@
 
       C.practices.forEach((p, i) => PRACTICE[p.type]($(`[data-p="${i}"]`), p, i));
       renderQuiz($("#quiz-box"), M.id, C.quiz);
-      bindComplete($("#done-btn"), M.id);
+      // 경계값 생성기(bva)는 채점 없는 체험형이라 완료 조건에서 제외
+      bindComplete($("#done-btn"), M.id, C.practices
+        .map((p, i) => ({ key: "p" + i, name: p.title, anchor: "p" + i, type: p.type }))
+        .filter(p => p.type !== "bva"));
     }
 
     function nextHtml() {
